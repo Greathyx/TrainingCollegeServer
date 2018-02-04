@@ -5,15 +5,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @Entity //加入这个注解，Supervisor就会进行持久化了
 @Table(name = "supervisor")
-public class Supervisor {
+public class Supervisor implements Serializable{
 
     private int supervisor_id;
-
     private String password;
-
 
     public Supervisor(){
 
@@ -26,11 +25,11 @@ public class Supervisor {
 
     @Id
     @Column(name = "supervisor_id")
-    public int getSupervisorId() {
+    public int getSupervisor_id() {
         return supervisor_id;
     }
 
-    public void setSupervisorId(int supervisor_id) {
+    public void setSupervisor_id(int supervisor_id) {
         this.supervisor_id = supervisor_id;
     }
 

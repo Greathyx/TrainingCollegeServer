@@ -22,3 +22,11 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+.DS_Store
+src/.DS_Store
+src/main/.DS_Store
+src/main/java/.DS_Store
+src/main/java/com/.DS_Store
+src/main/java/com/training_college_server/.DS_Store
+src/main/java/com/training_college_server/controller/.DS_Store
+src/main/java/com/training_college_server/dao/.DS_Store

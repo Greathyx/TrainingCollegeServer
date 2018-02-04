@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class SupervisorServiceImpl implements SupervisorService{
+public class SupervisorServiceImpl implements SupervisorService {
 
     @Autowired
     private SupervisorDao supervisorDao;
@@ -16,13 +16,11 @@ public class SupervisorServiceImpl implements SupervisorService{
     @Override
     public boolean isValidSupervisor(Supervisor supervisor) {
         boolean isValid = false;
+        Supervisor supervisor1 = supervisorDao.findOne(supervisor.getSupervisor_id());
 
-        Supervisor supervisor1 = supervisorDao.findOne(supervisor.getSupervisorId());
-
-        if (supervisor1.getPassword().equals(supervisor.getPassword())){
+        if (supervisor1 != null && supervisor1.getPassword().equals(supervisor.getPassword())) {
             isValid = true;
         }
-
         return isValid;
     }
 
