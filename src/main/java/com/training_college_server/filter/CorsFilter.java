@@ -1,4 +1,4 @@
-package com.training_college_server.config;
+package com.training_college_server.filter;
 
 import org.springframework.stereotype.Component;
 import javax.servlet.*;
