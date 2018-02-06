@@ -16,11 +16,20 @@ public class TraineeServiceImpl implements TraineeService {
     TraineeDao traineeDao;
 
     @Override
+    public boolean hasRegistered(String email) {
+        boolean result = false;
+        Trainee trainee = traineeDao.findByEmail(email);
+        if (trainee != null) {
+            result = true;
+        }
+        return result;
+    }
+
+    @Override
     public ResultBundle addTrainee(Trainee trainee, String verificationCode) {
 
-        Trainee trainee1 = traineeDao.findOne(trainee.getTrainee_id());
-        if (trainee1 != null) {
-            return new ResultBundle<Trainee>(false, "邮箱已被注册！", null);
+        if (hasRegistered(trainee.getEmail())) {
+            return new ResultBundle<Trainee>(false, "该邮箱已被注册！", null);
         } else {
             if (verificationCode.equals(MailService.getVerificationCode())) {
                 Trainee trainee2 = traineeDao.save(trainee);
@@ -28,6 +37,24 @@ public class TraineeServiceImpl implements TraineeService {
             }
             return new ResultBundle<Trainee>(false, "验证码错误！", null);
         }
+
     }
+
+    @Override
+    public ResultBundle traineeLogin(String email, String password) {
+
+        Trainee trainee = traineeDao.findByEmail(email);
+        if (trainee != null && trainee.getIs_active() && trainee.getPassword().equals(password)) {
+            return new ResultBundle<Trainee>(true, "登陆成功！", trainee);
+        }
+        else if (trainee != null && !trainee.getIs_active()){
+            return new ResultBundle<Trainee>(false, "该账号已注销！", null);
+        }
+        else {
+            return new ResultBundle<Trainee>(false, "邮箱或密码错误！", null);
+        }
+
+    }
+
 
 }

@@ -14,7 +14,7 @@ public class SupervisorServiceImpl implements SupervisorService {
     private SupervisorDao supervisorDao;
 
     @Override
-    public boolean isValidSupervisor(Supervisor supervisor) {
+    public boolean supervisorLogin(Supervisor supervisor) {
         boolean isValid = false;
         Supervisor supervisor1 = supervisorDao.findOne(supervisor.getSupervisor_id());
 

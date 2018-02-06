@@ -21,7 +21,7 @@ public class SupervisorController {
     @ResponseBody
     public ResultBundle login(Integer supervisor_id, String password) {
         Supervisor supervisor = new Supervisor(supervisor_id, password);
-        if (supervisorService.isValidSupervisor(supervisor)) {
+        if (supervisorService.supervisorLogin(supervisor)) {
             return new ResultBundle<Supervisor>(true, "登陆成功！", supervisor);
         } else {
             return new ResultBundle<Supervisor>(false, "用户名或密码错误！", null);

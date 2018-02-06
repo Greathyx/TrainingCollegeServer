@@ -16,7 +16,7 @@ public class Trainee implements Serializable {
     private String password;
     private double expenditure;
     private double balance;
-    private char is_active;
+    private boolean is_active;
 
     public Trainee() {
 
@@ -27,7 +27,7 @@ public class Trainee implements Serializable {
         this.password = password;
     }
 
-    public Trainee(int trainee_id, String email, String name, String password, double expenditure, double balance, char is_active) {
+    public Trainee(int trainee_id, String email, String name, String password, double expenditure, double balance, boolean is_active) {
         this.trainee_id = trainee_id;
         this.email = email;
         this.name = name;
@@ -94,11 +94,11 @@ public class Trainee implements Serializable {
     }
 
     @Column(name = "is_active")
-    public char getIs_active() {
+    public boolean getIs_active() {
         return is_active;
     }
 
-    public void setIs_active(char is_active) {
+    public void setIs_active(boolean is_active) {
         this.is_active = is_active;
     }
 

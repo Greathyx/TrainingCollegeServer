@@ -9,6 +9,6 @@ public interface SupervisorService {
      * @param supervisor
      * @return
      */
-    public boolean isValidSupervisor(Supervisor supervisor);
+    public boolean supervisorLogin(Supervisor supervisor);
 
 }
