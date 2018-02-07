@@ -31,6 +31,7 @@ public class TraineeController {
      * @return
      */
     @RequestMapping(path = "/sendVerificationCode", method = RequestMethod.POST)
+    @ResponseBody
     public ResultBundle sendVerificationCode(String email) {
         if (traineeService.hasRegistered(email)){
             return new ResultBundle<>(false, "该邮箱已被注册！", null);
@@ -66,6 +67,7 @@ public class TraineeController {
      * @return
      */
     @RequestMapping(path = "/login", method = RequestMethod.POST)
+    @ResponseBody
     public ResultBundle login(String email, String password){
         return traineeService.traineeLogin(email, password);
     }

@@ -1,10 +1,16 @@
 package com.training_college_server.service.impl;
 
+import com.training_college_server.dao.InstitutionApplyDao;
 import com.training_college_server.dao.SupervisorDao;
+import com.training_college_server.entity.InstitutionApply;
 import com.training_college_server.entity.Supervisor;
 import com.training_college_server.service.SupervisorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import utils.ResultBundle;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Component
@@ -12,6 +18,9 @@ public class SupervisorServiceImpl implements SupervisorService {
 
     @Autowired
     private SupervisorDao supervisorDao;
+
+    @Autowired
+    private InstitutionApplyDao institutionApplyDao;
 
     @Override
     public boolean supervisorLogin(Supervisor supervisor) {
@@ -22,6 +31,24 @@ public class SupervisorServiceImpl implements SupervisorService {
             isValid = true;
         }
         return isValid;
+    }
+
+    @Override
+    public ResultBundle getAllRegisterApply() {
+        List<InstitutionApply> institutionApplies = institutionApplyDao.findAllByTag("register");
+        ArrayList<InstitutionApply> arrayList = new ArrayList<>();
+        // 过滤返回信息中的密码
+        for (int i = 0; i < institutionApplies.size(); i++) {
+            InstitutionApply institutionApply = new InstitutionApply(
+                    institutionApplies.get(i).getEmail(),
+                    institutionApplies.get(i).getName(),
+                    institutionApplies.get(i).getLocation(),
+                    institutionApplies.get(i).getFaculty(),
+                    institutionApplies.get(i).getIntroduction()
+                    );
+            arrayList.add(institutionApply);
+        }
+        return new ResultBundle<ArrayList>(true, "success", arrayList);
     }
 
 }

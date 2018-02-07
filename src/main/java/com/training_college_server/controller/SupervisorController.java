@@ -17,6 +17,14 @@ public class SupervisorController {
     @Resource
     private SupervisorService supervisorService;
 
+    /**
+     *
+     * 管理员登陆方法
+     *
+     * @param supervisor_id
+     * @param password
+     * @return
+     */
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     @ResponseBody
     public ResultBundle login(Integer supervisor_id, String password) {
@@ -26,6 +34,18 @@ public class SupervisorController {
         } else {
             return new ResultBundle<Supervisor>(false, "用户名或密码错误！", null);
         }
+    }
+
+    /**
+     *
+     * 获取所有机构注册申请
+     *
+     * @return
+     */
+    @RequestMapping(path = "/getAllRegisterApply", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBundle getAllRegisterApply() {
+        return supervisorService.getAllRegisterApply();
     }
 
 }

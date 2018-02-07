@@ -15,7 +15,7 @@ public class Trainee implements Serializable {
     private String name;
     private String password;
     private double expenditure;
-    private double balance;
+    private int credit;
     private boolean is_active;
 
     public Trainee() {
@@ -27,13 +27,13 @@ public class Trainee implements Serializable {
         this.password = password;
     }
 
-    public Trainee(int trainee_id, String email, String name, String password, double expenditure, double balance, boolean is_active) {
+    public Trainee(int trainee_id, String email, String name, String password, double expenditure, int credit, boolean is_active) {
         this.trainee_id = trainee_id;
         this.email = email;
         this.name = name;
         this.password = password;
         this.expenditure = expenditure;
-        this.balance = balance;
+        this.credit = credit;
         this.is_active = is_active;
     }
 
@@ -84,13 +84,13 @@ public class Trainee implements Serializable {
         this.expenditure = expenditure;
     }
 
-    @Column(name = "balance")
-    public double getBalance() {
-        return balance;
+    @Column(name = "credit")
+    public int getCredit() {
+        return credit;
     }
 
-    public void setBalance(double balance) {
-        this.balance = balance;
+    public void setCredit(int credit) {
+        this.credit = credit;
     }
 
     @Column(name = "is_active")
