@@ -22,4 +22,22 @@ public interface SupervisorService {
      */
     public ResultBundle getAllRegisterApply();
 
+    /**
+     *
+     * 批准机构申请或修改信息
+     *
+     * @param institution_apply_id
+     * @return
+     */
+    public ResultBundle approveApply(int institution_apply_id);
+
+    /**
+     *
+     * 驳回机构申请或修改信息
+     *
+     * @param institution_apply_id
+     * @return
+     */
+    public ResultBundle rejectApply(int institution_apply_id);
+
 }

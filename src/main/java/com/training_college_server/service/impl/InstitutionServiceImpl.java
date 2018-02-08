@@ -31,5 +31,17 @@ public class InstitutionServiceImpl implements InstitutionService {
         }
     }
 
+    @Override
+    public ResultBundle institutionLogin(String code, String password) {
+        Institution institution = institutionDao.findByCode(code);
+        if (institution != null && institution.getPassword().equals(password)) {
+            return new ResultBundle<Institution>(true, "登陆成功！", institution);
+        }
+        else {
+            return new ResultBundle<Institution>(false, "登陆码或密码错误！", null);
+
+        }
+    }
+
 
 }

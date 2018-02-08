@@ -20,17 +20,20 @@ public class InstitutionApply {
 
     }
 
-    public InstitutionApply(String email, String name, String location,
-                            String faculty, String introduction) {
+    public InstitutionApply(String email, String name, String password, String location,
+                            String faculty, String introduction, String tag) {
         this.email = email;
         this.name = name;
+        this.password = password;
         this.location = location;
         this.faculty = faculty;
         this.introduction = introduction;
+        this.tag = tag;
     }
 
-    public InstitutionApply(String email, String name, String password, String location,
+    public InstitutionApply(int institution_apply_id, String email, String name, String password, String location,
                             String faculty, String introduction, String tag) {
+        this.institution_apply_id = institution_apply_id;
         this.email = email;
         this.name = name;
         this.password = password;

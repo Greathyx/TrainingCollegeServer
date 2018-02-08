@@ -15,4 +15,14 @@ public interface InstitutionService {
      */
     public ResultBundle institutionApply(Institution institution, InstitutionApply institutionApply);
 
+    /**
+     *
+     * 机构登陆方法
+     *
+     * @param code
+     * @param password
+     * @return
+     */
+    public ResultBundle institutionLogin(String code, String password);
+
 }

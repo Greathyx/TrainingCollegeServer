@@ -10,4 +10,6 @@ public interface InstitutionDao extends JpaRepository<Institution, Integer> {
 
     Institution findByEmail(String email);
 
+    Institution findByCode(String code);
+
 }

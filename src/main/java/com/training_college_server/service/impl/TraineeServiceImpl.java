@@ -15,6 +15,9 @@ public class TraineeServiceImpl implements TraineeService {
     @Autowired
     TraineeDao traineeDao;
 
+    @Autowired
+    MailService mailService;
+
     @Override
     public boolean hasRegistered(String email) {
         boolean result = false;
@@ -31,7 +34,7 @@ public class TraineeServiceImpl implements TraineeService {
         if (hasRegistered(trainee.getEmail())) {
             return new ResultBundle<Trainee>(false, "该邮箱已被注册！", null);
         } else {
-            if (verificationCode.equals(MailService.getVerificationCode())) {
+            if (verificationCode.equals(mailService.getVerificationCode())) {
                 Trainee trainee2 = traineeDao.save(trainee);
                 return new ResultBundle<Trainee>(true, "注册成功！", trainee2);
             }

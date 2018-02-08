@@ -10,11 +10,19 @@ public class VerificationCode {
     private static Random random = new Random();
 
     public static String getVerificationCode() {
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < 6; i++) {
-            stringBuffer.append(chars[random.nextInt(chars.length)]);
+            stringBuilder.append(chars[random.nextInt(chars.length)]);
         }
-        return stringBuffer.toString();
+        return stringBuilder.toString();
+    }
+
+    public static String getInstitutionCode() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < 7; i++) {
+            stringBuilder.append(chars[random.nextInt(chars.length)]);
+        }
+        return stringBuilder.toString();
     }
 
 }

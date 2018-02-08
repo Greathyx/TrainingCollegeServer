@@ -42,4 +42,18 @@ public class InstitutionController {
 
     }
 
+    /**
+     *
+     * 机构登陆方法
+     *
+     * @param code
+     * @param password
+     * @return
+     */
+    @RequestMapping(path = "/login", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle institutionLogin(String code, String password) {
+        return institutionService.institutionLogin(code, password);
+    }
+
 }
