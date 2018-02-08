@@ -17,6 +17,14 @@ public class VerificationCode {
         return stringBuilder.toString();
     }
 
+    /**
+     *
+     * 生成7位机构登陆码
+     * 由于要求只有7位，无法保证生成的7位登陆码不重复
+     * 所以会带来一定的问题
+     *
+     * @return
+     */
     public static String getInstitutionCode() {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < 7; i++) {

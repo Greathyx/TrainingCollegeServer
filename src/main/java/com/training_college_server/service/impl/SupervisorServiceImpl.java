@@ -74,11 +74,18 @@ public class SupervisorServiceImpl implements SupervisorService {
 
         // 若批准机构注册申请
         if (institutionApply.getTag().equals("register")) {
+            // 随机生成7位机构登陆码
+            String code = VerificationCode.getInstitutionCode();
+            // 若生成的登陆码与数据库中某条记录的登陆码一致，则返回，使界面重新发送请求
+            Institution test_institution = institutionDao.findByCode(code);
+            if (test_institution != null) {
+                return new ResultBundle<Institution>(false, "网络繁忙，请稍后再试。", null);
+            }
 
+            // 设置institution_apply表中对应行的tag为"done"，表示该条记录已经处理完成
             institutionApply.setTag(doneTag);
             InstitutionApply institutionApply1 = institutionApplyDao.save(institutionApply);
 
-            String code = VerificationCode.getInstitutionCode();
             Institution institution = new Institution(
                     code,
                     institutionApply1.getEmail(),
@@ -105,8 +112,7 @@ public class SupervisorServiceImpl implements SupervisorService {
             Institution institution1 = institutionDao.save(institution);
 
             return new ResultBundle<Institution>(true, "已批准机构修改信息申请！", institution1);
-        }
-        else {
+        } else {
             return new ResultBundle<Institution>(false, "处理失败！", null);
         }
 
@@ -127,8 +133,7 @@ public class SupervisorServiceImpl implements SupervisorService {
             institutionApply.setTag(doneTag);
             institutionApplyDao.save(institutionApply);
             return new ResultBundle<Institution>(true, "已驳回机构修改信息申请！", null);
-        }
-        else {
+        } else {
             return new ResultBundle<Institution>(false, "处理失败！", null);
         }
     }
