@@ -49,7 +49,21 @@ public class SupervisorController {
     @RequestMapping(path = "/getAllRegisterApply", method = RequestMethod.GET)
     @ResponseBody
     public ResultBundle getAllRegisterApply() {
-        return supervisorService.getAllRegisterApply();
+        String tag = "register"; // 机构申请注册的标签
+        return supervisorService.getAllApplies(tag);
+    }
+
+    /**
+     *
+     * 获取所有机构修改信息申请
+     *
+     * @return
+     */
+    @RequestMapping(path = "/getAllModifyApply", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBundle getAllModifyApply() {
+        String tag = "modify"; // 机构申请注册的标签
+        return supervisorService.getAllApplies(tag);
     }
 
     /**

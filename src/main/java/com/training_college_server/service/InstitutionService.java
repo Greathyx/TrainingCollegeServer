@@ -25,4 +25,14 @@ public interface InstitutionService {
      */
     public ResultBundle institutionLogin(String code, String password);
 
+    /**
+     *
+     * 机构申请修改信息方法
+     *
+     * @param institution
+     * @param password_previous
+     * @return
+     */
+    public ResultBundle institutionEditInfo(Institution institution, String password_previous);
+
 }

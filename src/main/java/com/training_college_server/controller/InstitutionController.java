@@ -19,7 +19,6 @@ public class InstitutionController {
     InstitutionService institutionService;
 
     /**
-     *
      * 机构注册申请
      *
      * @param email
@@ -43,7 +42,6 @@ public class InstitutionController {
     }
 
     /**
-     *
      * 机构登陆方法
      *
      * @param code
@@ -54,6 +52,31 @@ public class InstitutionController {
     @ResponseBody
     public ResultBundle institutionLogin(String code, String password) {
         return institutionService.institutionLogin(code, password);
+    }
+
+    /**
+     * 机构申请修改信息方法
+     *
+     * @param code
+     * @param email
+     * @param name
+     * @param password_previous
+     * @param password_new
+     * @param location
+     * @param faculty
+     * @param introduction
+     * @return
+     */
+    @RequestMapping(path = "/editInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle institutionEditInfo(String code, String email, String name,
+                                            String password_previous, String password_new,
+                                            String location, String faculty,
+                                            String introduction) {
+
+        Institution institution = new Institution(code, email, name,
+                password_new, location, faculty, introduction);
+        return institutionService.institutionEditInfo(institution, password_previous);
     }
 
 }

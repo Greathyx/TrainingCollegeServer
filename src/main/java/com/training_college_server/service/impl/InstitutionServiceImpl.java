@@ -19,6 +19,9 @@ public class InstitutionServiceImpl implements InstitutionService {
     @Autowired
     InstitutionApplyDao institutionApplyDao;
 
+    // done表示机构申请修改信息
+    private String modifyTag = "modify";
+
     @Override
     public ResultBundle institutionApply(Institution institution, InstitutionApply institutionApply) {
         Institution institution1 = institutionDao.findByEmail(institution.getEmail());
@@ -36,10 +39,55 @@ public class InstitutionServiceImpl implements InstitutionService {
         Institution institution = institutionDao.findByCode(code);
         if (institution != null && institution.getPassword().equals(password)) {
             return new ResultBundle<Institution>(true, "登陆成功！", institution);
-        }
-        else {
+        } else {
             return new ResultBundle<Institution>(false, "登陆码或密码错误！", null);
 
+        }
+    }
+
+    @Override
+    public ResultBundle institutionEditInfo(Institution institution, String password_previous) {
+        if (institution.getCode() == null) {
+            return new ResultBundle<Institution>(false, "修改机构信息出错！", null);
+        } else {
+            Institution institution1 = institutionDao.findByCode(institution.getCode());
+            // 如果无法根据机构注册码查询到该机构
+            if (institution1 == null) {
+                return new ResultBundle<Institution>(false, "该机构未注册，暂无信息！", null);
+            }
+            // 不修改密码的情况，即原密码和新密码输入框的值均为""
+            else if (institution.getPassword().equals("") && password_previous.equals("")) {
+                InstitutionApply institutionApply = new InstitutionApply(
+                        institution.getEmail(),
+                        institution.getName(),
+                        institution1.getPassword(), // 写入原密码
+                        institution.getLocation(),
+                        institution.getFaculty(),
+                        institution.getIntroduction(),
+                        modifyTag
+                );
+                institutionApplyDao.save(institutionApply);
+                return new ResultBundle<InstitutionApply>(true, "已向管理员申请修改信息，我们会通过邮件告诉您申请结果。", institutionApply);
+            }
+            // 修改密码的情况
+            // 如果输入的原密码与数据库中的原密码不一致
+            else if (!institution1.getPassword().equals(password_previous)) {
+                return new ResultBundle<Institution>(false, "原密码错误！", null);
+            }
+            // 修改机构信息
+            else {
+                InstitutionApply institutionApply = new InstitutionApply(
+                        institution.getEmail(),
+                        institution.getName(),
+                        institution.getPassword(), // 写入新密码
+                        institution.getLocation(),
+                        institution.getFaculty(),
+                        institution.getIntroduction(),
+                        modifyTag
+                );
+                institutionApplyDao.save(institutionApply);
+                return new ResultBundle<InstitutionApply>(true, "已向管理员申请修改信息，我们会通过邮件告诉您申请结果。", institutionApply);
+            }
         }
     }
 

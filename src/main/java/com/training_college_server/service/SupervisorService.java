@@ -18,9 +18,10 @@ public interface SupervisorService {
      *
      * 获取所有机构申请信息
      *
+     * @param tag
      * @return
      */
-    public ResultBundle getAllRegisterApply();
+    public ResultBundle getAllApplies(String tag);
 
     /**
      *

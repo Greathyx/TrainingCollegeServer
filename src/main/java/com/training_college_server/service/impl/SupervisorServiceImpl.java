@@ -47,8 +47,8 @@ public class SupervisorServiceImpl implements SupervisorService {
     }
 
     @Override
-    public ResultBundle getAllRegisterApply() {
-        List<InstitutionApply> institutionApplies = institutionApplyDao.findAllByTag("register");
+    public ResultBundle getAllApplies(String tag) {
+        List<InstitutionApply> institutionApplies = institutionApplyDao.findAllByTag(tag);
         ArrayList<InstitutionApply> arrayList = new ArrayList<>();
         // 过滤返回信息中的密码
         for (int i = 0; i < institutionApplies.size(); i++) {
@@ -101,18 +101,24 @@ public class SupervisorServiceImpl implements SupervisorService {
         }
         // 若批准机构修改信息申请
         else if (institutionApply.getTag().equals("modify")) {
-            Institution institution = institutionDao.findByEmail(institutionApply.getEmail());
+            // 设置institution_apply表中对应行的tag为"done"，表示该条记录已经处理完成
+            institutionApply.setTag(doneTag);
+            InstitutionApply institutionApply1 = institutionApplyDao.save(institutionApply);
 
-            institution.setName(institutionApply.getName());
-            institution.setPassword(institutionApply.getPassword());
-            institution.setLocation(institutionApply.getLocation());
-            institution.setFaculty(institutionApply.getLocation());
-            institution.setIntroduction(institutionApply.getIntroduction());
+            Institution institution = institutionDao.findByEmail(institutionApply1.getEmail());
+
+            institution.setName(institutionApply1.getName());
+            institution.setPassword(institutionApply1.getPassword());
+            institution.setLocation(institutionApply1.getLocation());
+            institution.setFaculty(institutionApply1.getFaculty());
+            institution.setIntroduction(institutionApply1.getIntroduction());
             // 修改数据库信息
             Institution institution1 = institutionDao.save(institution);
 
             return new ResultBundle<Institution>(true, "已批准机构修改信息申请！", institution1);
-        } else {
+
+        }
+        else {
             return new ResultBundle<Institution>(false, "处理失败！", null);
         }
 
