@@ -3,6 +3,7 @@ package utils;
 
 /**
  * 用于回传值
+ *
  * @param <T>
  */
 public class ResultBundle<T> {

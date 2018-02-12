@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import utils.ResultBundle;
 
+import javax.annotation.Resource;
 import java.sql.Date;
 
 
@@ -18,20 +19,19 @@ import java.sql.Date;
 @RequestMapping("/institution")
 public class InstitutionController {
 
-    @Autowired
-    InstitutionService institutionService;
+    @Resource
+    private InstitutionService institutionService;
 
     /**
-     *
      * 机构注册申请
      *
-     * @param email
-     * @param name
-     * @param password
-     * @param location
-     * @param faculty
-     * @param introduction
-     * @return
+     * @param email        邮箱
+     * @param name         机构名称
+     * @param password     密码
+     * @param location     地址
+     * @param faculty      师资介绍
+     * @param introduction 机构简介
+     * @return ResultBundle
      */
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     @ResponseBody
@@ -46,12 +46,11 @@ public class InstitutionController {
     }
 
     /**
-     *
      * 机构登陆方法
      *
-     * @param code
-     * @param password
-     * @return
+     * @param code     7位机构登陆码
+     * @param password 密码
+     * @return ResultBundle
      */
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     @ResponseBody
@@ -60,18 +59,17 @@ public class InstitutionController {
     }
 
     /**
-     *
      * 机构申请修改信息方法
      *
-     * @param code
-     * @param email
-     * @param name
-     * @param password_previous
-     * @param password_new
-     * @param location
-     * @param faculty
-     * @param introduction
-     * @return
+     * @param code              7位机构登陆码
+     * @param email             邮箱
+     * @param name              机构名称
+     * @param password_previous 原密码
+     * @param password_new      新密码
+     * @param location          地址
+     * @param faculty           师资介绍
+     * @param introduction      机构简介
+     * @return ResultBundle
      */
     @RequestMapping(path = "/editInfo", method = RequestMethod.POST)
     @ResponseBody
@@ -86,20 +84,19 @@ public class InstitutionController {
     }
 
     /**
-     *
      * 机构发布课程方法
      *
-     * @param publisher
-     * @param name
-     * @param trainee_amount
-     * @param periods_per_week
-     * @param total_weeks
-     * @param teacher
-     * @param type
-     * @param price
-     * @param start_date
-     * @param introduction
-     * @return
+     * @param publisher        机构ID
+     * @param name             课程名称
+     * @param trainee_amount   学员数量
+     * @param periods_per_week 每周课时数
+     * @param total_weeks      总周数
+     * @param teacher          教师介绍
+     * @param type             课程类型
+     * @param price            总价格
+     * @param start_date       开始日期
+     * @param introduction     课程简介
+     * @return ResultBundle
      */
     @RequestMapping(path = "/releaseCourse", method = RequestMethod.POST)
     @ResponseBody
@@ -113,11 +110,10 @@ public class InstitutionController {
     }
 
     /**
-     *
      * 获取机构课程信息
      *
-     * @param publisher
-     * @return
+     * @param publisher 机构ID
+     * @return ResultBundle
      */
     @RequestMapping(path = "/getCourseInfo", method = RequestMethod.POST)
     @ResponseBody

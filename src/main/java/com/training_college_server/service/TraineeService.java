@@ -6,51 +6,46 @@ import utils.ResultBundle;
 public interface TraineeService {
 
     /**
-     *
      * 判断邮箱是否已被注册
      *
-     * @param email
-     * @return
+     * @param email 邮箱
+     * @return 邮箱是否已经被注册的布尔值
      */
-    public boolean hasRegistered(String email);
+    boolean hasRegistered(String email);
 
     /**
-     *
      * 获取会员状态，即是否已注销
      *
-     * @param trainee_id
-     * @return
+     * @param trainee_id 会员ID
+     * @return 会员资格状态的布尔值
      */
-    public boolean isActive(int trainee_id);
+    boolean isActive(int trainee_id);
 
     /**
-     *
      * 注册新用户方法
      *
-     * @param trainee
-     * @param verificationCode
-     * @return
+     * @param trainee          会员对象
+     * @param verificationCode 验证码
+     * @return ResultBundle
      */
-    public ResultBundle addTrainee(Trainee trainee, String verificationCode);
+    ResultBundle addTrainee(Trainee trainee, String verificationCode);
 
     /**
-     *
      * 学员登陆方法
      *
-     * @param email
-     * @param password
-     * @return
+     * @param email    邮箱
+     * @param password 密码
+     * @return ResultBundle
      */
-    public ResultBundle traineeLogin(String email, String password);
+    ResultBundle traineeLogin(String email, String password);
 
     /**
-     *
      * 修改学员信息
      *
-     * @param trainee
-     * @param password_previous
-     * @return
+     * @param trainee           会员对象
+     * @param password_previous 原密码
+     * @return ResultBundle
      */
-    public ResultBundle traineeEditInfo(Trainee trainee, String password_previous);
+    ResultBundle traineeEditInfo(Trainee trainee, String password_previous);
 
 }

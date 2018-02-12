@@ -11,23 +11,22 @@ public interface MailService {
      *
      * @param to 接受邮件地址
      */
-    public void sendVerificationCode(String to);
+    void sendVerificationCode(String to);
 
     /**
      * 获取邮件所发验证码
      *
-     * @return
+     * @return 6位验证码
      */
-    public String getVerificationCode();
+    String getVerificationCode();
 
     /**
-     *
      * 发送管理员处理结果邮件
      *
-     * @param to
-     * @param title
-     * @param content
+     * @param to      目标电子邮箱地址
+     * @param title   邮件标题
+     * @param content 邮件内容
      */
-    public void sendSupervisorReply(String to, String title, String content);
+    void sendSupervisorReply(String to, String title, String content);
 
 }

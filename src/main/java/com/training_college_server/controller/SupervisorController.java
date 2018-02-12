@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import utils.ResultBundle;
+
 import javax.annotation.Resource;
 
 
@@ -22,12 +23,11 @@ public class SupervisorController {
     private MailService mailService;
 
     /**
-     *
      * 管理员登陆方法
      *
-     * @param supervisor_id
-     * @param password
-     * @return
+     * @param supervisor_id 管理员ID
+     * @param password      密码
+     * @return ResultBundle
      */
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     @ResponseBody
@@ -41,10 +41,9 @@ public class SupervisorController {
     }
 
     /**
-     *
      * 获取所有机构注册申请
      *
-     * @return
+     * @return ResultBundle
      */
     @RequestMapping(path = "/getAllRegisterApply", method = RequestMethod.GET)
     @ResponseBody
@@ -54,10 +53,9 @@ public class SupervisorController {
     }
 
     /**
-     *
      * 获取所有机构修改信息申请
      *
-     * @return
+     * @return ResultBundle
      */
     @RequestMapping(path = "/getAllModifyApply", method = RequestMethod.GET)
     @ResponseBody
@@ -67,11 +65,10 @@ public class SupervisorController {
     }
 
     /**
-     *
      * 批准机构注册或修改信息申请
      *
-     * @param institution_apply_id
-     * @return
+     * @param institution_apply_id 机构申请处理项的ID
+     * @return ResultBundle
      */
     @RequestMapping(path = "/approveApply", method = RequestMethod.POST)
     @ResponseBody
@@ -80,11 +77,10 @@ public class SupervisorController {
     }
 
     /**
-     *
      * 驳回机构注册或修改信息申请
      *
-     * @param institution_apply_id
-     * @return
+     * @param institution_apply_id 机构申请处理项的ID
+     * @return ResultBundle
      */
     @RequestMapping(path = "/rejectApply", method = RequestMethod.POST)
     @ResponseBody
@@ -93,12 +89,11 @@ public class SupervisorController {
     }
 
     /**
-     *
      * 发送批准或驳回提示邮件
      *
-     * @param to
-     * @param title
-     * @param content
+     * @param to      目标电子邮箱地址
+     * @param title   邮件标题
+     * @param content 邮件内容
      */
     @RequestMapping(path = "/sendReplyMail", method = RequestMethod.POST)
     @ResponseBody
