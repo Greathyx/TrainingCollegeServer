@@ -1,13 +1,17 @@
 package com.training_college_server.service.impl;
 
+import com.training_college_server.dao.CourseDao;
 import com.training_college_server.dao.InstitutionApplyDao;
 import com.training_college_server.dao.InstitutionDao;
+import com.training_college_server.entity.Course;
 import com.training_college_server.entity.Institution;
 import com.training_college_server.entity.InstitutionApply;
 import com.training_college_server.service.InstitutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import utils.ResultBundle;
+
+import java.util.List;
 
 
 @Component
@@ -18,6 +22,9 @@ public class InstitutionServiceImpl implements InstitutionService {
 
     @Autowired
     InstitutionApplyDao institutionApplyDao;
+
+    @Autowired
+    CourseDao courseDao;
 
     // done表示机构申请修改信息
     private String modifyTag = "modify";
@@ -91,5 +98,21 @@ public class InstitutionServiceImpl implements InstitutionService {
         }
     }
 
+    @Override
+    public ResultBundle releaseCourse(Course course) {
+        Institution institution = institutionDao.findOne(course.getPublisher());
+        if (institution == null) {
+            return new ResultBundle<Course>(false, "该机构未注册！", null);
+        } else {
+            Course course1 = courseDao.save(course);
+            return new ResultBundle<Course>(true, "课程已成功发布！", course1);
+        }
+    }
+
+    @Override
+    public ResultBundle getCourseInfo(int publisher) {
+        List<Course> courseList = courseDao.findAllByPublisher(publisher);
+        return new ResultBundle<List>(true, "已获取机构课程信息！", courseList);
+    }
 
 }

@@ -27,7 +27,8 @@ public class Trainee implements Serializable {
         this.password = password;
     }
 
-    public Trainee(int trainee_id, String email, String name, String password, double expenditure, int credit, boolean is_active) {
+    public Trainee(int trainee_id, String email, String name, String password,
+                   double expenditure, int credit, boolean is_active) {
         this.trainee_id = trainee_id;
         this.email = email;
         this.name = name;

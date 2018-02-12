@@ -22,6 +22,18 @@ public class TraineeController {
     @Resource
     private MailService mailService;
 
+    /**
+     *
+     * 获取会员状态，即是否已注销
+     *
+     * @param trainee_id
+     * @return
+     */
+    @RequestMapping(path = "/isActive", method = RequestMethod.POST)
+    @ResponseBody
+    public boolean isActive (int trainee_id) {
+        return traineeService.isActive(trainee_id);
+    }
 
     /**
      *
@@ -70,6 +82,29 @@ public class TraineeController {
     @ResponseBody
     public ResultBundle login(String email, String password){
         return traineeService.traineeLogin(email, password);
+    }
+
+    /**
+     *
+     * 学员修改信息方法
+     *
+     * @param trainee_id
+     * @param email
+     * @param name
+     * @param password_previous
+     * @param password_new
+     * @param expenditure
+     * @param credit
+     * @param is_active
+     * @return
+     */
+    @RequestMapping(path = "/traineeEditInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle traineeEditInfo(int trainee_id, String email, String name, String password_previous,
+                                        String password_new, double expenditure, int credit, boolean is_active) {
+
+        Trainee trainee = new Trainee(trainee_id,email,name, password_new, expenditure,credit,is_active);
+        return  traineeService.traineeEditInfo(trainee, password_previous);
     }
 
 }

@@ -29,6 +29,12 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    public boolean isActive(int trainee_id) {
+        Trainee trainee = traineeDao.findOne(trainee_id);
+        return trainee.getIs_active();
+    }
+
+    @Override
     public ResultBundle addTrainee(Trainee trainee, String verificationCode) {
 
         if (hasRegistered(trainee.getEmail())) {
@@ -57,6 +63,49 @@ public class TraineeServiceImpl implements TraineeService {
             return new ResultBundle<Trainee>(false, "邮箱或密码错误！", null);
         }
 
+    }
+
+    @Override
+    public ResultBundle traineeEditInfo(Trainee trainee, String password_previous) {
+        Trainee trainee1 = traineeDao.findOne(trainee.getTrainee_id());
+        // 如果无法根据学员id查询到学员
+        if (trainee1 == null){
+            return new ResultBundle<>(false, "该学员未注册，暂无信息！", null);
+        }
+        else {
+            // 不修改密码的情况，即原密码和新密码输入框的值均为""
+            if (trainee.getPassword().equals("") && password_previous.equals("")){
+                Trainee trainee_new = new Trainee(
+                        trainee.getTrainee_id(),
+                        trainee.getEmail(),
+                        trainee.getName(),
+                        trainee1.getPassword(), // 写入原密码
+                        trainee1.getExpenditure(),
+                        trainee1.getCredit(),
+                        trainee.getIs_active()
+                );
+                traineeDao.save(trainee_new);
+                return new ResultBundle<Trainee>(true, "修改信息成功！", trainee_new);
+            }
+            // 修改密码的情况
+            // 如果输入的原密码与数据库中的原密码不一致
+            else if(!trainee1.getPassword().equals(password_previous)){
+                return new ResultBundle<Trainee>(false, "原密码错误！", null);
+            }
+            else {
+                Trainee trainee_new = new Trainee(
+                        trainee.getTrainee_id(),
+                        trainee.getEmail(),
+                        trainee.getName(),
+                        trainee.getPassword(), // 写入新密码
+                        trainee1.getExpenditure(),
+                        trainee1.getCredit(),
+                        trainee.getIs_active()
+                );
+                traineeDao.save(trainee_new);
+                return new ResultBundle<Trainee>(true, "修改信息成功！", trainee_new);
+            }
+        }
     }
 
 
