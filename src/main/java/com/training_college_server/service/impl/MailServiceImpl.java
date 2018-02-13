@@ -8,6 +8,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import utils.VerificationCode;
 
+import javax.annotation.Resource;
+
 
 @Component
 public class MailServiceImpl implements MailService {
@@ -15,7 +17,7 @@ public class MailServiceImpl implements MailService {
     @Value("${spring.mail.username}")
     private String from;
 
-    @Autowired
+    @Resource
     private JavaMailSender sender;
 
     private String verificationCode = VerificationCode.getVerificationCode();

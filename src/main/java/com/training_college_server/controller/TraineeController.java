@@ -101,4 +101,16 @@ public class TraineeController {
         return traineeService.traineeEditInfo(trainee, password_previous);
     }
 
+    /**
+     * 获取会员累计消费，等级，优惠折扣和积分
+     *
+     * @param trainee_id 会员ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getTraineeVipInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getTraineeVipInfo(int trainee_id) {
+        return traineeService.getTraineeVipInfo(trainee_id);
+    }
+
 }

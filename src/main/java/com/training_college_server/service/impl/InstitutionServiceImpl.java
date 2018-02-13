@@ -7,27 +7,25 @@ import com.training_college_server.entity.Course;
 import com.training_college_server.entity.Institution;
 import com.training_college_server.entity.InstitutionApply;
 import com.training_college_server.service.InstitutionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import utils.ResultBundle;
-
+import javax.annotation.Resource;
 import java.util.List;
 
 
 @Component
 public class InstitutionServiceImpl implements InstitutionService {
 
-    @Autowired
-    InstitutionDao institutionDao;
+    @Resource
+    private InstitutionDao institutionDao;
 
-    @Autowired
-    InstitutionApplyDao institutionApplyDao;
+    @Resource
+    private InstitutionApplyDao institutionApplyDao;
 
-    @Autowired
-    CourseDao courseDao;
+    @Resource
+    private CourseDao courseDao;
 
-    // done表示机构申请修改信息
-    private String modifyTag = "modify";
+
 
     @Override
     public ResultBundle institutionApply(Institution institution, InstitutionApply institutionApply) {
@@ -37,7 +35,7 @@ public class InstitutionServiceImpl implements InstitutionService {
         } else {
             institutionApplyDao.save(institutionApply);
             String message = "正在等待管理员验证，验证通过后，我们会第一时间发邮件通知您，请注意查收。";
-            return new ResultBundle<Institution>(true, message, institution);
+            return new ResultBundle<>(true, message, institution);
         }
     }
 
@@ -45,7 +43,7 @@ public class InstitutionServiceImpl implements InstitutionService {
     public ResultBundle institutionLogin(String code, String password) {
         Institution institution = institutionDao.findByCode(code);
         if (institution != null && institution.getPassword().equals(password)) {
-            return new ResultBundle<Institution>(true, "登陆成功！", institution);
+            return new ResultBundle<>(true, "登陆成功！", institution);
         } else {
             return new ResultBundle<Institution>(false, "登陆码或密码错误！", null);
 
@@ -57,6 +55,9 @@ public class InstitutionServiceImpl implements InstitutionService {
         if (institution.getCode() == null) {
             return new ResultBundle<Institution>(false, "修改机构信息出错！", null);
         } else {
+            // modify表示机构申请修改信息
+            String modifyTag = "modify";
+
             Institution institution1 = institutionDao.findByCode(institution.getCode());
             // 如果无法根据机构注册码查询到该机构
             if (institution1 == null) {
@@ -74,7 +75,7 @@ public class InstitutionServiceImpl implements InstitutionService {
                         modifyTag
                 );
                 institutionApplyDao.save(institutionApply);
-                return new ResultBundle<InstitutionApply>(true, "已向管理员申请修改信息，我们会通过邮件告诉您申请结果。", institutionApply);
+                return new ResultBundle<>(true, "已向管理员申请修改信息，我们会通过邮件告诉您申请结果。", institutionApply);
             }
             // 修改密码的情况
             // 如果输入的原密码与数据库中的原密码不一致
@@ -93,7 +94,7 @@ public class InstitutionServiceImpl implements InstitutionService {
                         modifyTag
                 );
                 institutionApplyDao.save(institutionApply);
-                return new ResultBundle<InstitutionApply>(true, "已向管理员申请修改信息，我们会通过邮件告诉您申请结果。", institutionApply);
+                return new ResultBundle<>(true, "已向管理员申请修改信息，我们会通过邮件告诉您申请结果。", institutionApply);
             }
         }
     }
@@ -105,7 +106,7 @@ public class InstitutionServiceImpl implements InstitutionService {
             return new ResultBundle<Course>(false, "该机构未注册！", null);
         } else {
             Course course1 = courseDao.save(course);
-            return new ResultBundle<Course>(true, "课程已成功发布！", course1);
+            return new ResultBundle<>(true, "课程已成功发布！", course1);
         }
     }
 

@@ -6,13 +6,11 @@ import com.training_college_server.dao.SupervisorDao;
 import com.training_college_server.entity.Institution;
 import com.training_college_server.entity.InstitutionApply;
 import com.training_college_server.entity.Supervisor;
-import com.training_college_server.service.MailService;
 import com.training_college_server.service.SupervisorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import utils.ResultBundle;
 import utils.VerificationCode;
-
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,17 +18,14 @@ import java.util.List;
 @Component
 public class SupervisorServiceImpl implements SupervisorService {
 
-    @Autowired
+    @Resource
     private SupervisorDao supervisorDao;
 
-    @Autowired
+    @Resource
     private InstitutionApplyDao institutionApplyDao;
 
-    @Autowired
+    @Resource
     private InstitutionDao institutionDao;
-
-    @Autowired
-    private MailService mailService;
 
     // done表示机构申请已被处理
     private String doneTag = "done";
@@ -97,7 +92,7 @@ public class SupervisorServiceImpl implements SupervisorService {
             );
             Institution institution1 = institutionDao.save(institution);
 
-            return new ResultBundle<Institution>(true, "已批准机构注册申请！", institution1);
+            return new ResultBundle<>(true, "已批准机构注册申请！", institution1);
         }
         // 若批准机构修改信息申请
         else if (institutionApply.getTag().equals("modify")) {
@@ -115,7 +110,7 @@ public class SupervisorServiceImpl implements SupervisorService {
             // 修改数据库信息
             Institution institution1 = institutionDao.save(institution);
 
-            return new ResultBundle<Institution>(true, "已批准机构修改信息申请！", institution1);
+            return new ResultBundle<>(true, "已批准机构修改信息申请！", institution1);
 
         }
         else {

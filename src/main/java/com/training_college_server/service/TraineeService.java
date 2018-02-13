@@ -48,4 +48,13 @@ public interface TraineeService {
      */
     ResultBundle traineeEditInfo(Trainee trainee, String password_previous);
 
+    /**
+     *
+     * 获取会员累计消费，等级优惠折扣和积分
+     *
+     * @param trainee_id 会员ID
+     * @return ResultBundle
+     */
+    ResultBundle getTraineeVipInfo(int trainee_id);
+
 }
