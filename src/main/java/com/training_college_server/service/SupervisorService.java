@@ -1,7 +1,7 @@
 package com.training_college_server.service;
 
 import com.training_college_server.entity.Supervisor;
-import utils.ResultBundle;
+import com.training_college_server.utils.ResultBundle;
 
 public interface SupervisorService {
 

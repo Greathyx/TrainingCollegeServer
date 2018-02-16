@@ -1,4 +1,4 @@
-package utils;
+package com.training_college_server.utils;
 
 /**
  * 计算会员等级，优惠折扣和积分的工具类

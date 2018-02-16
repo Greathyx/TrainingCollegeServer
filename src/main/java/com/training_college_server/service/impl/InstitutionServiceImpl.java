@@ -8,7 +8,7 @@ import com.training_college_server.entity.Institution;
 import com.training_college_server.entity.InstitutionApply;
 import com.training_college_server.service.InstitutionService;
 import org.springframework.stereotype.Component;
-import utils.ResultBundle;
+import com.training_college_server.utils.ResultBundle;
 import javax.annotation.Resource;
 import java.util.List;
 

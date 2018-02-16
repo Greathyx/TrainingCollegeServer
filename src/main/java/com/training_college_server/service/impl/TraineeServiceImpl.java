@@ -1,18 +1,21 @@
 package com.training_college_server.service.impl;
 
 import com.training_college_server.bean.TraineeVipInfo;
+import com.training_college_server.dao.BankAccountDao;
 import com.training_college_server.dao.CourseDao;
 import com.training_college_server.dao.CourseOrderDao;
 import com.training_college_server.dao.TraineeDao;
+import com.training_college_server.entity.BankAccount;
 import com.training_college_server.entity.Course;
 import com.training_college_server.entity.CourseOrder;
 import com.training_college_server.entity.Trainee;
 import com.training_college_server.service.MailService;
 import com.training_college_server.service.TraineeService;
 //import org.springframework.data.domain.Sort;
+import com.training_college_server.service.UpdateOrderStatusService;
 import org.springframework.stereotype.Component;
-import utils.ResultBundle;
-import utils.TraineeStrategy;
+import com.training_college_server.utils.ResultBundle;
+import com.training_college_server.utils.TraineeStrategy;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -32,6 +35,12 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Resource
     private CourseOrderDao courseOrderDao;
+
+    @Resource
+    private UpdateOrderStatusService updateOrderStatusService;
+
+    @Resource
+    private BankAccountDao bankAccountDao;
 
     @Override
     public boolean hasRegistered(String email) {
@@ -172,8 +181,8 @@ public class TraineeServiceImpl implements TraineeService {
                     courseOrder.getAmount(),
                     courseOrder.getDescription(),
                     trainee_name,
-                    institution_name,
                     course_name,
+                    institution_name,
                     add_credits
             );
             // 在数据库中生成订单
@@ -184,6 +193,9 @@ public class TraineeServiceImpl implements TraineeService {
             course.setBooked_amount(course.getBooked_amount() + 1);
             courseDao.save(course);
 
+            // 开启改变状态的定时器
+            updateOrderStatusService.invalidateOrderStatus(courseOrder2.getCourse_order_id());
+
             return new ResultBundle<>(true, "已生成订单，请在15分钟内完成支付！", courseOrder2);
         }
     }
@@ -192,6 +204,50 @@ public class TraineeServiceImpl implements TraineeService {
     public ResultBundle getAllOrdersByStatus(int traineeID, String status) {
         List<CourseOrder> courseOrderList = courseOrderDao.findAllByTraineeIDAndStatus(traineeID, status);
         return new ResultBundle<List>(true, "已成功获取用户订单！", courseOrderList);
+    }
+
+    @Override
+    public ResultBundle pay(int course_order_id, String identity, String password) {
+        CourseOrder courseOrder = courseOrderDao.findOne(course_order_id);
+        if (courseOrder == null) {
+            return new ResultBundle<>(false, "订单不存在！", null);
+        }
+        // 订单状态为invalid
+        else if (courseOrder.getStatus().equals("invalid")) {
+            return new ResultBundle<>(false, "该订单已失效！", null);
+        }
+
+        BankAccount bankAccount = bankAccountDao.findByIdentity(identity);
+        // 银行账户不存在
+        if (bankAccount == null) {
+            return new ResultBundle<>(false, "银行账户不存在！", null);
+        }
+        // 密码不正确
+        else if (!bankAccount.getPassword().equals(password)) {
+            return new ResultBundle<>(false, "银行密码错误！", null);
+        }
+        // 在预定后15min内正确付款
+        else {
+            // 扣除银行账户钱款
+            double payment = courseOrder.getPayment();
+            bankAccount.setBalance(bankAccount.getBalance() - payment);
+            bankAccountDao.save(bankAccount); // 写入数据库
+
+            Trainee trainee = traineeDao.findOne(courseOrder.getTraineeID());
+            // 增加会员累计消费
+            trainee.setExpenditure(trainee.getExpenditure() + payment);
+
+            // 增加会员积分
+            int add_credits = courseOrder.getAdd_credits();
+            trainee.setCredit(trainee.getCredit() + add_credits);
+            traineeDao.save(trainee); // 写入数据库
+
+            // 修改订单状态
+            courseOrder.setStatus("paid");
+            courseOrderDao.save(courseOrder); // 写入数据库
+
+            return new ResultBundle<>(true, "已成功付款！", null);
+        }
     }
 
 }

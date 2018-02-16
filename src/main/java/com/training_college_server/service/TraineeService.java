@@ -2,7 +2,8 @@ package com.training_college_server.service;
 
 import com.training_college_server.entity.CourseOrder;
 import com.training_college_server.entity.Trainee;
-import utils.ResultBundle;
+import com.training_college_server.utils.ResultBundle;
+
 
 public interface TraineeService {
 
@@ -88,5 +89,15 @@ public interface TraineeService {
      * @return ResultBundle
      */
     ResultBundle getAllOrdersByStatus(int traineeID, String status);
+
+    /**
+     * 付款
+     *
+     * @param course_order_id 订单ID
+     * @param identity 银行账户
+     * @param password 密码
+     * @return ResultBundle
+     */
+    ResultBundle pay(int course_order_id, String identity, String password);
 
 }

@@ -4,13 +4,18 @@ import com.training_college_server.entity.CourseOrder;
 import com.training_college_server.entity.Trainee;
 import com.training_college_server.service.MailService;
 import com.training_college_server.service.TraineeService;
+import com.training_college_server.service.UpdateOrderStatusService;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import utils.ResultBundle;
+import com.training_college_server.utils.ResultBundle;
 
 import javax.annotation.Resource;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 
 
 @RestController
@@ -154,15 +159,21 @@ public class TraineeController {
     }
 
     /**
-     * 获取学员所有未支付订单
+     * 根据订单状态获取学员所有订单
      *
      * @param traineeID 学员ID
      * @return ResultBundle
      */
-    @RequestMapping(path = "/getAllNotPaidOrders", method = RequestMethod.POST)
+    @RequestMapping(path = "/getAllOrdersByStatus", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBundle getAllNotPaidOrders(int traineeID) {
-        return traineeService.getAllOrdersByStatus(traineeID, "not_paid");
+    public ResultBundle getAllOrdersByStatus(int traineeID, String status) {
+        return traineeService.getAllOrdersByStatus(traineeID, status);
+    }
+
+    @RequestMapping(path = "/pay", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle pay(int course_order_id, String identity, String password) {
+        return traineeService.pay(course_order_id, identity, password);
     }
 
 }

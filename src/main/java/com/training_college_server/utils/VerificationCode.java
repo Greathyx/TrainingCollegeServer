@@ -1,4 +1,4 @@
-package utils;
+package com.training_college_server.utils;
 
 import java.util.Random;
 
