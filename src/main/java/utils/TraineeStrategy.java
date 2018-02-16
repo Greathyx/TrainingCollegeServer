@@ -47,13 +47,13 @@ public class TraineeStrategy {
 
     /**
      * 会员积分策略
-     * 单笔消费每满100，获取10积分
+     * 单笔消费每满100，获取5积分
      *
      * @param expenditure 单笔消费金额
      * @return 会员积分
      */
     public static int getCredit(double expenditure) {
-        return (int) expenditure % 100 * 5;
+        return (int) Math.floor(expenditure / 100) * 5;
     }
 
 }

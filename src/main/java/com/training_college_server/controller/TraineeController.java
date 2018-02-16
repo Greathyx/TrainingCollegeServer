@@ -1,5 +1,6 @@
 package com.training_college_server.controller;
 
+import com.training_college_server.entity.CourseOrder;
 import com.training_college_server.entity.Trainee;
 import com.training_college_server.service.MailService;
 import com.training_college_server.service.TraineeService;
@@ -61,8 +62,8 @@ public class TraineeController {
      */
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBundle register(String email, String password, String verificationCode) {
-        Trainee trainee = new Trainee(email, password);
+    public ResultBundle register(String email, String password, String name, String verificationCode) {
+        Trainee trainee = new Trainee(email, password, name);
         return traineeService.addTrainee(trainee, verificationCode);
     }
 
@@ -111,6 +112,57 @@ public class TraineeController {
     @ResponseBody
     public ResultBundle getTraineeVipInfo(int trainee_id) {
         return traineeService.getTraineeVipInfo(trainee_id);
+    }
+
+    /**
+     * 获取所有机构发布的所有不分班课程
+     *
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getAllCourses", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBundle getAllCourses() {
+        return traineeService.getAllCourses();
+    }
+
+    /**
+     * 获取所有机构发布的所有分班课程
+     *
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getAllCoursesWithClasses", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBundle getAllCoursesWithClasses() {
+        return traineeService.getAllCoursesWithClasses();
+    }
+
+    /**
+     * 生成课程订单
+     *
+     * @param traineeID   学员ID
+     * @param courseID    课程ID
+     * @param payment     实付课程费用
+     * @param amount      订课人数
+     * @param description 附加信息
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/generateOrder", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle generateOrder(int traineeID, int courseID, double payment, int amount, String description) {
+        CourseOrder courseOrder = new CourseOrder(traineeID, courseID, payment, amount, description);
+        return traineeService.generateOrder(courseOrder);
+    }
+
+    /**
+     * 获取学员所有未支付订单
+     *
+     * @param traineeID 学员ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getAllNotPaidOrders", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getAllNotPaidOrders(int traineeID) {
+        return traineeService.getAllOrdersByStatus(traineeID, "not_paid");
     }
 
 }

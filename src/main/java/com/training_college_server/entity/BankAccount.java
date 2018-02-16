@@ -9,7 +9,7 @@ import java.io.Serializable;
 public class BankAccount implements Serializable {
 
     private int bank_account_id;
-    private String holder;
+    private int holder;
     private String identity;
     private String password;
     private double balance;
@@ -30,11 +30,11 @@ public class BankAccount implements Serializable {
     }
 
     @Column(name = "holder")
-    public String getHolder() {
+    public int getHolder() {
         return holder;
     }
 
-    public void setHolder(String holder) {
+    public void setHolder(int holder) {
         this.holder = holder;
     }
 

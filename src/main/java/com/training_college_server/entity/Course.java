@@ -11,6 +11,7 @@ public class Course implements Serializable {
 
     private int course_id;
     private int publisher;
+    private String publisher_name;
     private String name;
     private int trainee_amount;
     private int periods_per_week;
@@ -20,15 +21,21 @@ public class Course implements Serializable {
     private double price;
     private Date start_date;
     private String introduction;
+    private int class_amount = 1;
+    private boolean hasClasses;
+    private Date book_due_date;
+    private int booked_amount;
 
     public Course() {
 
     }
 
-    public Course(int publisher, String name, int trainee_amount,
+    public Course(int publisher, String publisher_name, String name, int trainee_amount,
                   int periods_per_week, int total_weeks, String teacher, String type,
-                  double price, Date start_date, String introduction) {
+                  double price, Date start_date, String introduction, boolean hasClasses,
+                  Date book_due_date) {
         this.publisher = publisher;
+        this.publisher_name = publisher_name;
         this.name = name;
         this.trainee_amount = trainee_amount;
         this.periods_per_week = periods_per_week;
@@ -38,6 +45,8 @@ public class Course implements Serializable {
         this.price = price;
         this.start_date = start_date;
         this.introduction = introduction;
+        this.hasClasses = hasClasses;
+        this.book_due_date = book_due_date;
     }
 
     @Id
@@ -58,6 +67,15 @@ public class Course implements Serializable {
 
     public void setPublisher(int publisher) {
         this.publisher = publisher;
+    }
+
+    @Column(name = "publisher_name")
+    public String getPublisher_name() {
+        return publisher_name;
+    }
+
+    public void setPublisher_name(String publisher_name) {
+        this.publisher_name = publisher_name;
     }
 
     @Column(name = "name")
@@ -139,6 +157,42 @@ public class Course implements Serializable {
 
     public void setIntroduction(String introduction) {
         this.introduction = introduction;
+    }
+
+    @Column(name = "class_amount")
+    public int getClass_amount() {
+        return class_amount;
+    }
+
+    public void setClass_amount(int class_amount) {
+        this.class_amount = class_amount;
+    }
+
+    @Column(name = "has_classes")
+    public boolean isHasClasses() {
+        return hasClasses;
+    }
+
+    public void setHasClasses(boolean hasClasses) {
+        this.hasClasses = hasClasses;
+    }
+
+    @Column(name = "book_due_date")
+    public Date getBook_due_date() {
+        return book_due_date;
+    }
+
+    public void setBook_due_date(Date book_due_date) {
+        this.book_due_date = book_due_date;
+    }
+
+    @Column(name = "booked_amount")
+    public int getBooked_amount() {
+        return booked_amount;
+    }
+
+    public void setBooked_amount(int booked_amount) {
+        this.booked_amount = booked_amount;
     }
 
 }

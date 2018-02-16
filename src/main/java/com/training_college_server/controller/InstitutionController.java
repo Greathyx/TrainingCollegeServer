@@ -98,12 +98,13 @@ public class InstitutionController {
      */
     @RequestMapping(path = "/releaseCourse", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBundle releaseCourse(int publisher, String name, int trainee_amount,
+    public ResultBundle releaseCourse(int publisher, String publisher_name, String name, int trainee_amount,
                                       int periods_per_week, int total_weeks, String teacher, String type,
-                                      double price, Date start_date, String introduction) {
+                                      double price, Date start_date, String introduction, boolean has_classes,
+                                      Date book_due_date) {
 
-        Course course = new Course(publisher, name, trainee_amount, periods_per_week,
-                total_weeks, teacher, type, price, start_date, introduction);
+        Course course = new Course(publisher,publisher_name, name, trainee_amount, periods_per_week,
+                total_weeks, teacher, type, price, start_date, introduction, has_classes, book_due_date);
         return institutionService.releaseCourse(course);
     }
 

@@ -1,14 +1,21 @@
 package com.training_college_server.service.impl;
 
 import com.training_college_server.bean.TraineeVipInfo;
+import com.training_college_server.dao.CourseDao;
+import com.training_college_server.dao.CourseOrderDao;
 import com.training_college_server.dao.TraineeDao;
+import com.training_college_server.entity.Course;
+import com.training_college_server.entity.CourseOrder;
 import com.training_college_server.entity.Trainee;
 import com.training_college_server.service.MailService;
 import com.training_college_server.service.TraineeService;
+//import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import utils.ResultBundle;
 import utils.TraineeStrategy;
+
 import javax.annotation.Resource;
+import java.util.List;
 
 
 @Component
@@ -19,6 +26,12 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Resource
     private MailService mailService;
+
+    @Resource
+    private CourseDao courseDao;
+
+    @Resource
+    private CourseOrderDao courseOrderDao;
 
     @Override
     public boolean hasRegistered(String email) {
@@ -122,6 +135,63 @@ public class TraineeServiceImpl implements TraineeService {
             );
             return new ResultBundle<>(true, "已成功获取会员信息！", vipInfo);
         }
+    }
+
+    @Override
+    public ResultBundle getAllCourses() {
+//        List<Course> courseList = courseDao.findAll(new Sort(Sort.Direction.DESC, "publisher"));
+        List<Course> courseList = courseDao.findAllByHasClasses(false);
+        return new ResultBundle<List>(true, "已成功获取数据！", courseList);
+    }
+
+    @Override
+    public ResultBundle getAllCoursesWithClasses() {
+        List<Course> courseList = courseDao.findAllByHasClasses(true);
+        return new ResultBundle<List>(true, "已成功获取数据！", courseList);
+    }
+
+    @Override
+    public ResultBundle generateOrder(CourseOrder courseOrder) {
+
+        Trainee trainee = traineeDao.findOne(courseOrder.getTraineeID());
+        Course course = courseDao.findOne(courseOrder.getCourseID());
+
+        if (trainee == null || course == null) {
+            return new ResultBundle<>(false, "生成订单出错！", null);
+        } else {
+            // 获取学员姓名，机构和课程名称
+            String trainee_name = trainee.getName();
+            String institution_name = course.getPublisher_name();
+            String course_name = course.getName();
+            int add_credits = TraineeStrategy.getCredit(courseOrder.getPayment());
+
+            CourseOrder courseOrder1 = new CourseOrder(
+                    courseOrder.getTraineeID(),
+                    courseOrder.getCourseID(),
+                    courseOrder.getPayment(),
+                    courseOrder.getAmount(),
+                    courseOrder.getDescription(),
+                    trainee_name,
+                    institution_name,
+                    course_name,
+                    add_credits
+            );
+            // 在数据库中生成订单
+            CourseOrder courseOrder2 = courseOrderDao.save(courseOrder1);
+
+            // 该课程已订购人数加一
+            // 锁定席位！若15min后用户未支付，则订购人数减一
+            course.setBooked_amount(course.getBooked_amount() + 1);
+            courseDao.save(course);
+
+            return new ResultBundle<>(true, "已生成订单，请在15分钟内完成支付！", courseOrder2);
+        }
+    }
+
+    @Override
+    public ResultBundle getAllOrdersByStatus(int traineeID, String status) {
+        List<CourseOrder> courseOrderList = courseOrderDao.findAllByTraineeIDAndStatus(traineeID, status);
+        return new ResultBundle<List>(true, "已成功获取用户订单！", courseOrderList);
     }
 
 }

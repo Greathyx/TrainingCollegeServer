@@ -22,9 +22,10 @@ public class Trainee implements Serializable {
 
     }
 
-    public Trainee(String email, String password) {
+    public Trainee(String email, String password, String name) {
         this.email = email;
         this.password = password;
+        this.name = name;
     }
 
     public Trainee(int trainee_id, String email, String name, String password,
