@@ -7,4 +7,6 @@ public interface BankAccountDao extends JpaRepository<BankAccount, Integer> {
 
     BankAccount findByIdentity(String identity);
 
+    BankAccount findByHolder(int holder);
+
 }

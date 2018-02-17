@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 
 /**
@@ -56,15 +55,18 @@ public class UpdateOrderStatusService {
     private class MyRunnable implements Runnable {
         @Override
         public void run() {
-            // 设置订单状态为invalid
-            courseOrder.setStatus("invalid");
-            CourseOrder courseOrder1 = courseOrderDao.save(courseOrder);
+            // 如果触发定时器时，该订单状态不为invalid且不为unsubscribe时，则关闭定时器
+            // 当触发定时器时，该订单状态已为invalid，则说明用户在15min内取消了订单
+            if (!courseOrder.getStatus().equals("invalid") && !(courseOrder.getStatus().equals("unsubscribe"))) {
+                // 设置订单状态为invalid
+                courseOrder.setStatus("invalid");
+                CourseOrder courseOrder1 = courseOrderDao.save(courseOrder);
 
-            // 该课程已订购人数减一
-            Course course = courseDao.findOne(courseOrder1.getCourseID());
-            course.setBooked_amount(course.getBooked_amount() - 1);
-            courseDao.save(course);
-
+                // 该课程已订购人数减一
+                Course course = courseDao.findOne(courseOrder1.getCourseID());
+                course.setBooked_amount(course.getBooked_amount() - 1);
+                courseDao.save(course);
+            }
             // 关闭定时器
             if (future != null) {
                 future.cancel(true);

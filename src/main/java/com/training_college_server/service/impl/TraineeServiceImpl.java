@@ -18,6 +18,9 @@ import com.training_college_server.utils.ResultBundle;
 import com.training_college_server.utils.TraineeStrategy;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -188,8 +191,9 @@ public class TraineeServiceImpl implements TraineeService {
             // 在数据库中生成订单
             CourseOrder courseOrder2 = courseOrderDao.save(courseOrder1);
 
-            // 该课程已订购人数加一
-            // 锁定席位！若15min后用户未支付，则订购人数减一
+            // 该课程已订购人数+1
+            // 锁定席位！若15min后用户未支付，则订购人数-1
+            // 若用户在15mi内自己取消了订单，则订购人数也会-1
             course.setBooked_amount(course.getBooked_amount() + 1);
             courseDao.save(course);
 
@@ -247,6 +251,121 @@ public class TraineeServiceImpl implements TraineeService {
             courseOrderDao.save(courseOrder); // 写入数据库
 
             return new ResultBundle<>(true, "已成功付款！", null);
+        }
+    }
+
+    @Override
+    public ResultBundle cancelPay(int course_order_id) {
+        CourseOrder courseOrder = courseOrderDao.findOne(course_order_id);
+        if (courseOrder == null) {
+            return new ResultBundle<>(false, "订单不存在！", null);
+        }
+        // 订单状态为invalid
+        else if (courseOrder.getStatus().equals("invalid")) {
+            return new ResultBundle<>(false, "该订单已失效！", null);
+        }
+        // 取消订单
+        else {
+            // 该课程已订购人数减一
+            Course course = courseDao.findOne(courseOrder.getCourseID());
+            course.setBooked_amount(course.getBooked_amount() - 1);
+            courseDao.save(course);
+
+            // 设置订单状态为invalid
+            courseOrder.setStatus("invalid");
+            courseOrderDao.save(courseOrder);
+
+            return new ResultBundle<>(true, "已成功取消订单！", null);
+        }
+    }
+
+    @Override
+    public ResultBundle unsubscribe(int course_order_id) {
+        CourseOrder courseOrder = courseOrderDao.findOne(course_order_id);
+        if (courseOrder == null) {
+            return new ResultBundle<>(false, "订单不存在！", null);
+        }
+        // 订单状态为invalid
+        else if (courseOrder.getStatus().equals("invalid")) {
+            return new ResultBundle<>(false, "该订单已失效！", null);
+        }
+        // 退课
+        else {
+            Course course = courseDao.findOne(courseOrder.getCourseID());
+            Date start_date = course.getStart_date();
+            Calendar start_cal = Calendar.getInstance(); // 课程开始时间的Calendar对象
+            start_cal.setTime(start_date);
+
+            java.util.Date current_date = new java.util.Date();
+            Calendar current_cal = Calendar.getInstance(); // 当前时间的Calendar对象
+            current_cal.setTime(current_date);
+
+            // 该课程已订购人数减一
+            course.setBooked_amount(course.getBooked_amount() - 1);
+            courseDao.save(course);
+
+            // 订单状态改为unsubscribe
+            courseOrder.setStatus("unsubscribe");
+            CourseOrder courseOrder1 = courseOrderDao.save(courseOrder);
+
+            // 如果在开课日期前退课，则根据距离开课日期的时间的长短，退还一定比例的钱款，
+            // 但扣除当时所有获得的会员积分, 且减少相应数目的累计消费金额
+            if (current_cal.before(start_cal)) {
+                Trainee trainee = traineeDao.findOne(courseOrder1.getTraineeID());
+                int add_credits = courseOrder1.getAdd_credits();
+                // 扣除当时所有获得的会员积分
+                trainee.setCredit(trainee.getCredit() - add_credits);
+                Trainee trainee1 = traineeDao.save(trainee); // 写入数据库
+
+                // 获取银行账户
+                double payment = courseOrder1.getPayment();
+                BankAccount bankAccount = bankAccountDao.findByHolder(courseOrder1.getTraineeID());
+
+                // 若开课前1周内退课，则退还1/4的钱款
+                current_cal.add(Calendar.DATE, 7);
+                if (current_cal.after(start_cal)) {
+                    // 计算退回的钱，四舍五入保留两位小数
+                    BigDecimal bigDecimal = new BigDecimal(0.25 * payment);
+                    double money_back = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+                    bankAccount.setBalance(bankAccount.getBalance() + money_back);
+                    bankAccountDao.save(bankAccount);
+                    // 减少相应数目的累计消费金额
+                    trainee1.setExpenditure(trainee1.getExpenditure() - money_back);
+                    traineeDao.save(trainee1);
+                    return new ResultBundle<>(true, "已成功退课！且成功退款" + String.valueOf(money_back) + "元！", null);
+                }
+
+                // 若开课前2周内退课，则退还1/2的钱款
+                current_cal.add(Calendar.DATE, 7);
+                if (current_cal.after(start_cal)) {
+                    // 计算退回的钱，四舍五入保留两位小数
+                    BigDecimal bigDecimal = new BigDecimal(0.5 * payment);
+                    double money_back = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+                    bankAccount.setBalance(bankAccount.getBalance() + money_back);
+                    bankAccountDao.save(bankAccount);
+                    // 减少相应数目的累计消费金额
+                    trainee1.setExpenditure(trainee1.getExpenditure() - money_back);
+                    traineeDao.save(trainee1);
+                    return new ResultBundle<>(true, "已成功退课！且成功退款" + String.valueOf(money_back) + "元！", null);
+                }
+
+                // 若开课前2周以外退课，则退还3/4的钱款
+                // 计算退回的钱，四舍五入保留两位小数
+                BigDecimal bigDecimal = new BigDecimal(0.75 * payment);
+                double money_back = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+                bankAccount.setBalance(bankAccount.getBalance() + money_back);
+                bankAccountDao.save(bankAccount);
+                // 减少相应数目的累计消费金额
+                trainee1.setExpenditure(trainee1.getExpenditure() - money_back);
+                traineeDao.save(trainee1);
+                return new ResultBundle<>(true, "已成功退课！且成功退款" + String.valueOf(money_back) + "元！", null);
+
+            }
+            // 如果在开课日期后退课，则不退钱，但会员积分不会扣除
+            return new ResultBundle<>(true, "已成功退课！", null);
         }
     }
 

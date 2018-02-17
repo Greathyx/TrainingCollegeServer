@@ -4,8 +4,6 @@ import com.training_college_server.entity.CourseOrder;
 import com.training_college_server.entity.Trainee;
 import com.training_college_server.service.MailService;
 import com.training_college_server.service.TraineeService;
-import com.training_college_server.service.UpdateOrderStatusService;
-import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -13,9 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.training_college_server.utils.ResultBundle;
 
 import javax.annotation.Resource;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
 
 
 @RestController
@@ -170,10 +165,42 @@ public class TraineeController {
         return traineeService.getAllOrdersByStatus(traineeID, status);
     }
 
+    /**
+     * 线上支付课程费用
+     *
+     * @param course_order_id 课程订单ID
+     * @param identity        银行账号
+     * @param password        密码
+     * @return ResultBundle
+     */
     @RequestMapping(path = "/pay", method = RequestMethod.POST)
     @ResponseBody
     public ResultBundle pay(int course_order_id, String identity, String password) {
         return traineeService.pay(course_order_id, identity, password);
+    }
+
+    /**
+     * 取消课程订单
+     *
+     * @param course_order_id 课程订单ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/cancelPay", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle cancelPay(int course_order_id) {
+        return traineeService.cancelPay(course_order_id);
+    }
+
+    /**
+     * 用户退课
+     *
+     * @param course_order_id 课程订单ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/unsubscribe", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle unsubscribe(int course_order_id) {
+        return traineeService.unsubscribe(course_order_id);
     }
 
 }

@@ -85,7 +85,7 @@ public interface TraineeService {
      * 根据订单状态获取学员所有订单
      *
      * @param traineeID 学员ID
-     * @param status 订单状态
+     * @param status    订单状态
      * @return ResultBundle
      */
     ResultBundle getAllOrdersByStatus(int traineeID, String status);
@@ -94,10 +94,26 @@ public interface TraineeService {
      * 付款
      *
      * @param course_order_id 订单ID
-     * @param identity 银行账户
-     * @param password 密码
+     * @param identity        银行账户
+     * @param password        密码
      * @return ResultBundle
      */
     ResultBundle pay(int course_order_id, String identity, String password);
+
+    /**
+     * 用户在下单15分钟内取消订单
+     *
+     * @param course_order_id 订单ID
+     * @return ResultBundle
+     */
+    ResultBundle cancelPay(int course_order_id);
+
+    /**
+     * 用户退课
+     *
+     * @param course_order_id 订单ID
+     * @return ResultBundle
+     */
+    ResultBundle unsubscribe(int course_order_id);
 
 }
