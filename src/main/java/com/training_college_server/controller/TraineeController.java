@@ -148,8 +148,8 @@ public class TraineeController {
      */
     @RequestMapping(path = "/generateOrder", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBundle generateOrder(int traineeID, int courseID, double payment, int amount, String description) {
-        CourseOrder courseOrder = new CourseOrder(traineeID, courseID, payment, amount, description);
+    public ResultBundle generateOrder(int traineeID, int courseID, int institutionID, double payment, int amount, String description) {
+        CourseOrder courseOrder = new CourseOrder(traineeID, courseID, institutionID, payment, amount, description);
         return traineeService.generateOrder(courseOrder);
     }
 
@@ -201,6 +201,20 @@ public class TraineeController {
     @ResponseBody
     public ResultBundle unsubscribe(int course_order_id) {
         return traineeService.unsubscribe(course_order_id);
+    }
+
+    /**
+     * 积分兑换卡余额方法
+     *
+     * @param trainee_id 会员ID
+     * @param credits    要兑换的积分数额
+     * @param identity   银行卡号
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/creditsExchange", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle creditsExchange(int trainee_id, int credits, String identity) {
+        return traineeService.creditsExchange(trainee_id, credits, identity);
     }
 
 }

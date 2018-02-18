@@ -180,6 +180,7 @@ public class TraineeServiceImpl implements TraineeService {
             CourseOrder courseOrder1 = new CourseOrder(
                     courseOrder.getTraineeID(),
                     courseOrder.getCourseID(),
+                    courseOrder.getInstitutionID(),
                     courseOrder.getPayment(),
                     courseOrder.getAmount(),
                     courseOrder.getDescription(),
@@ -313,6 +314,7 @@ public class TraineeServiceImpl implements TraineeService {
             if (current_cal.before(start_cal)) {
                 Trainee trainee = traineeDao.findOne(courseOrder1.getTraineeID());
                 int add_credits = courseOrder1.getAdd_credits();
+
                 // 扣除当时所有获得的会员积分
                 trainee.setCredit(trainee.getCredit() - add_credits);
                 Trainee trainee1 = traineeDao.save(trainee); // 写入数据库
@@ -320,6 +322,9 @@ public class TraineeServiceImpl implements TraineeService {
                 // 获取银行账户
                 double payment = courseOrder1.getPayment();
                 BankAccount bankAccount = bankAccountDao.findByHolder(courseOrder1.getTraineeID());
+
+                // 存入扣除的积分
+                courseOrder1.setMinus_credits(add_credits);
 
                 // 若开课前1周内退课，则退还1/4的钱款
                 current_cal.add(Calendar.DATE, 7);
@@ -333,6 +338,11 @@ public class TraineeServiceImpl implements TraineeService {
                     // 减少相应数目的累计消费金额
                     trainee1.setExpenditure(trainee1.getExpenditure() - money_back);
                     traineeDao.save(trainee1);
+
+                    // 保存退款金额
+                    courseOrder1.setPayback(money_back);
+                    courseOrderDao.save(courseOrder1);
+
                     return new ResultBundle<>(true, "已成功退课！且成功退款" + String.valueOf(money_back) + "元！", null);
                 }
 
@@ -348,6 +358,11 @@ public class TraineeServiceImpl implements TraineeService {
                     // 减少相应数目的累计消费金额
                     trainee1.setExpenditure(trainee1.getExpenditure() - money_back);
                     traineeDao.save(trainee1);
+
+                    // 保存退款金额
+                    courseOrder1.setPayback(money_back);
+                    courseOrderDao.save(courseOrder1);
+
                     return new ResultBundle<>(true, "已成功退课！且成功退款" + String.valueOf(money_back) + "元！", null);
                 }
 
@@ -361,12 +376,40 @@ public class TraineeServiceImpl implements TraineeService {
                 // 减少相应数目的累计消费金额
                 trainee1.setExpenditure(trainee1.getExpenditure() - money_back);
                 traineeDao.save(trainee1);
+
+                // 保存退款金额
+                courseOrder1.setPayback(money_back);
+                courseOrderDao.save(courseOrder1);
+
                 return new ResultBundle<>(true, "已成功退课！且成功退款" + String.valueOf(money_back) + "元！", null);
 
+            } else {
+                // 如果在开课日期后退课，则不退钱，但会员积分不会扣除
+                // 保存退款金额
+                courseOrder1.setMinus_credits(0);
+                courseOrder1.setPayback(0);
+                courseOrderDao.save(courseOrder1);
+                return new ResultBundle<>(true, "已成功退课！", null);
             }
-            // 如果在开课日期后退课，则不退钱，但会员积分不会扣除
-            return new ResultBundle<>(true, "已成功退课！", null);
         }
+    }
+
+    @Override
+    public ResultBundle creditsExchange(int trainee_id, int credits, String identity) {
+        BankAccount bankAccount = bankAccountDao.findByIdentity(identity);
+        if (bankAccount == null) {
+            return new ResultBundle<>(false, "银行账户不存在！", null);
+        }
+        // 将积分兑换为卡余额
+        bankAccount.setBalance(bankAccount.getBalance() + credits);
+        bankAccountDao.save(bankAccount);
+
+        // 扣除会员兑换数额的积分
+        Trainee trainee = traineeDao.findOne(trainee_id);
+        trainee.setCredit(trainee.getCredit() - credits);
+        traineeDao.save(trainee);
+
+        return new ResultBundle<>(true, "已成功将" + String.valueOf(credits) + "积分兑换为卡余额！", null);
     }
 
 }

@@ -12,6 +12,7 @@ public class CourseOrder implements Serializable {
     private int course_order_id;
     private int traineeID;
     private int courseID;
+    private int institutionID;
     private int classID;
     private double payment;
     private String status = "not_paid";
@@ -21,23 +22,27 @@ public class CourseOrder implements Serializable {
     private String institution_name;
     private String course_name;
     private int add_credits;
+    private double payback = -1;
+    private int minus_credits = -1;
 
     public CourseOrder() {
 
     }
 
-    public CourseOrder(int traineeID, int courseID, double payment, int amount, String description) {
+    public CourseOrder(int traineeID, int courseID, int institutionID, double payment, int amount, String description) {
         this.traineeID = traineeID;
         this.courseID = courseID;
+        this.institutionID = institutionID;
         this.payment = payment;
         this.amount = amount;
         this.description = description;
     }
 
-    public CourseOrder(int traineeID, int courseID, double payment, int amount, String description,
+    public CourseOrder(int traineeID, int courseID, int institutionID, double payment, int amount, String description,
                        String traineeName, String courseName, String institutionName, int add_credits) {
         this.traineeID = traineeID;
         this.courseID = courseID;
+        this.institutionID = institutionID;
         this.payment = payment;
         this.amount = amount;
         this.description = description;
@@ -74,6 +79,15 @@ public class CourseOrder implements Serializable {
 
     public void setCourseID(int courseID) {
         this.courseID = courseID;
+    }
+
+    @Column(name = "institutionID")
+    public int getInstitutionID() {
+        return institutionID;
+    }
+
+    public void setInstitutionID(int institutionID) {
+        this.institutionID = institutionID;
     }
 
     @Column(name = "classID")
@@ -155,6 +169,24 @@ public class CourseOrder implements Serializable {
 
     public void setAdd_credits(int add_credits) {
         this.add_credits = add_credits;
+    }
+
+    @Column(name = "payback")
+    public double getPayback() {
+        return payback;
+    }
+
+    public void setPayback(double payback) {
+        this.payback = payback;
+    }
+
+    @Column(name = "minus_credits")
+    public int getMinus_credits() {
+        return minus_credits;
+    }
+
+    public void setMinus_credits(int minus_credits) {
+        this.minus_credits = minus_credits;
     }
 
 }
