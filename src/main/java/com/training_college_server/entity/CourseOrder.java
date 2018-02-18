@@ -2,6 +2,7 @@ package com.training_college_server.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Date;
 import java.sql.Timestamp;
 
 
@@ -22,8 +23,10 @@ public class CourseOrder implements Serializable {
     private String institution_name;
     private String course_name;
     private int add_credits;
-    private double payback = -1;
-    private int minus_credits = -1;
+    private double payback = 0;
+    private int minus_credits = 0;
+    private Date book_time;
+    private Date unsubscribe_time;
 
     public CourseOrder() {
 
@@ -39,7 +42,7 @@ public class CourseOrder implements Serializable {
     }
 
     public CourseOrder(int traineeID, int courseID, int institutionID, double payment, int amount, String description,
-                       String traineeName, String courseName, String institutionName, int add_credits) {
+                       String traineeName, String courseName, String institutionName, int add_credits, Date book_time) {
         this.traineeID = traineeID;
         this.courseID = courseID;
         this.institutionID = institutionID;
@@ -50,6 +53,7 @@ public class CourseOrder implements Serializable {
         this.course_name = courseName;
         this.institution_name = institutionName;
         this.add_credits = add_credits;
+        this.book_time = book_time;
     }
 
     @Id
@@ -187,6 +191,24 @@ public class CourseOrder implements Serializable {
 
     public void setMinus_credits(int minus_credits) {
         this.minus_credits = minus_credits;
+    }
+
+    @Column(name = "book_time")
+    public Date getBook_time() {
+        return book_time;
+    }
+
+    public void setBook_time(Date book_time) {
+        this.book_time = book_time;
+    }
+
+    @Column(name = "unsubscribe_time")
+    public Date getUnsubscribe_time() {
+        return unsubscribe_time;
+    }
+
+    public void setUnsubscribe_time(Date unsubscribe_time) {
+        this.unsubscribe_time = unsubscribe_time;
     }
 
 }

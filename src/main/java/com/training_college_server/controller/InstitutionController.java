@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.training_college_server.utils.ResultBundle;
+
 import javax.annotation.Resource;
 import java.sql.Date;
 
@@ -103,7 +104,7 @@ public class InstitutionController {
                                       double price, Date start_date, String introduction, boolean has_classes,
                                       Date book_due_date) {
 
-        Course course = new Course(publisher,publisher_name, name, trainee_amount, periods_per_week,
+        Course course = new Course(publisher, publisher_name, name, trainee_amount, periods_per_week,
                 total_weeks, teacher, type, price, start_date, introduction, has_classes, book_due_date);
         return institutionService.releaseCourse(course);
     }
@@ -118,6 +119,19 @@ public class InstitutionController {
     @ResponseBody
     public ResultBundle getCourseInfo(int publisher) {
         return institutionService.getCourseInfo(publisher);
+    }
+
+    /**
+     * 获得订课信息或退课信息
+     *
+     * @param institutionID 机构ID
+     * @param status        订单状态
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getAllOrdersByStatus", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getAllOrdersByStatus(int institutionID, String status) {
+        return institutionService.getAllOrdersByStatus(institutionID, status);
     }
 
 }

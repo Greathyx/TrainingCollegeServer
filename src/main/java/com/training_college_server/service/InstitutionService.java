@@ -49,4 +49,13 @@ public interface InstitutionService {
      */
     ResultBundle getCourseInfo(int publisher);
 
+    /**
+     * 获得订课信息或退课信息
+     *
+     * @param institutionID 机构ID
+     * @param status        订单状态
+     * @return ResultBundle
+     */
+    ResultBundle getAllOrdersByStatus(int institutionID, String status);
+
 }

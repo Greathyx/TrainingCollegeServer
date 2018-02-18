@@ -176,6 +176,8 @@ public class TraineeServiceImpl implements TraineeService {
             String institution_name = course.getPublisher_name();
             String course_name = course.getName();
             int add_credits = TraineeStrategy.getCredit(courseOrder.getPayment());
+            java.util.Date current_date = new java.util.Date();
+            Date book_date = new Date(current_date.getTime());
 
             CourseOrder courseOrder1 = new CourseOrder(
                     courseOrder.getTraineeID(),
@@ -187,7 +189,8 @@ public class TraineeServiceImpl implements TraineeService {
                     trainee_name,
                     course_name,
                     institution_name,
-                    add_credits
+                    add_credits,
+                    book_date
             );
             // 在数据库中生成订单
             CourseOrder courseOrder2 = courseOrderDao.save(courseOrder1);
@@ -307,6 +310,10 @@ public class TraineeServiceImpl implements TraineeService {
 
             // 订单状态改为unsubscribe
             courseOrder.setStatus("unsubscribe");
+            // 写入退课日期
+            java.util.Date date = new java.util.Date();
+            Date unsubscribe_date = new Date(date.getTime());
+            courseOrder.setUnsubscribe_time(unsubscribe_date);
             CourseOrder courseOrder1 = courseOrderDao.save(courseOrder);
 
             // 如果在开课日期前退课，则根据距离开课日期的时间的长短，退还一定比例的钱款，
@@ -400,16 +407,23 @@ public class TraineeServiceImpl implements TraineeService {
         if (bankAccount == null) {
             return new ResultBundle<>(false, "银行账户不存在！", null);
         }
-        // 将积分兑换为卡余额
-        bankAccount.setBalance(bankAccount.getBalance() + credits);
-        bankAccountDao.save(bankAccount);
 
-        // 扣除会员兑换数额的积分
         Trainee trainee = traineeDao.findOne(trainee_id);
-        trainee.setCredit(trainee.getCredit() - credits);
-        traineeDao.save(trainee);
+        // 如果要求兑换的积分数额大于用户已获积分数额
+        if (trainee.getCredit() < credits) {
+            return new ResultBundle<>(false, "您暂无要求兑换数额的积分，请您再次核对积分信息！", null);
+        }
+        // 将积分兑换为卡余额
+        else {
+            bankAccount.setBalance(bankAccount.getBalance() + credits);
+            bankAccountDao.save(bankAccount);
 
-        return new ResultBundle<>(true, "已成功将" + String.valueOf(credits) + "积分兑换为卡余额！", null);
+            // 扣除会员兑换数额的积分
+            trainee.setCredit(trainee.getCredit() - credits);
+            traineeDao.save(trainee);
+
+            return new ResultBundle<>(true, "已成功将" + String.valueOf(credits) + "积分兑换为卡余额！", null);
+        }
     }
 
 }

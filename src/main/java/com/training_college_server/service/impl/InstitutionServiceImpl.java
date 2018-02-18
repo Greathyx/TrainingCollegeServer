@@ -1,9 +1,11 @@
 package com.training_college_server.service.impl;
 
 import com.training_college_server.dao.CourseDao;
+import com.training_college_server.dao.CourseOrderDao;
 import com.training_college_server.dao.InstitutionApplyDao;
 import com.training_college_server.dao.InstitutionDao;
 import com.training_college_server.entity.Course;
+import com.training_college_server.entity.CourseOrder;
 import com.training_college_server.entity.Institution;
 import com.training_college_server.entity.InstitutionApply;
 import com.training_college_server.service.InstitutionService;
@@ -25,7 +27,8 @@ public class InstitutionServiceImpl implements InstitutionService {
     @Resource
     private CourseDao courseDao;
 
-
+    @Resource
+    private CourseOrderDao courseOrderDao;
 
     @Override
     public ResultBundle institutionApply(Institution institution, InstitutionApply institutionApply) {
@@ -114,6 +117,17 @@ public class InstitutionServiceImpl implements InstitutionService {
     public ResultBundle getCourseInfo(int publisher) {
         List<Course> courseList = courseDao.findAllByPublisher(publisher);
         return new ResultBundle<List>(true, "已获取机构课程信息！", courseList);
+    }
+
+    @Override
+    public ResultBundle getAllOrdersByStatus(int institutionID, String status) {
+        List<CourseOrder> orderList = courseOrderDao.findAllByInstitutionIDAndStatus(institutionID, status);
+        if (orderList == null) {
+            return new ResultBundle<>(false, "暂无订课信息！", null);
+        }
+        else {
+            return new ResultBundle<List>(false, "已获取订课信息！", orderList);
+        }
     }
 
 }
