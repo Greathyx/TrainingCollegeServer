@@ -1,17 +1,15 @@
 package com.training_college_server.service.impl;
 
-import com.training_college_server.dao.CourseDao;
-import com.training_college_server.dao.CourseOrderDao;
-import com.training_college_server.dao.InstitutionApplyDao;
-import com.training_college_server.dao.InstitutionDao;
-import com.training_college_server.entity.Course;
-import com.training_college_server.entity.CourseOrder;
-import com.training_college_server.entity.Institution;
-import com.training_college_server.entity.InstitutionApply;
+import com.training_college_server.bean.TraineeInfoForInstitution;
+import com.training_college_server.dao.*;
+import com.training_college_server.entity.*;
 import com.training_college_server.service.InstitutionService;
+import com.training_college_server.utils.TraineeStrategy;
 import org.springframework.stereotype.Component;
 import com.training_college_server.utils.ResultBundle;
+
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -29,6 +27,12 @@ public class InstitutionServiceImpl implements InstitutionService {
 
     @Resource
     private CourseOrderDao courseOrderDao;
+
+    @Resource
+    private TraineeDao traineeDao;
+
+    @Resource
+    private CourseRegistrationDao courseRegistrationDao;
 
     @Override
     public ResultBundle institutionApply(Institution institution, InstitutionApply institutionApply) {
@@ -124,10 +128,67 @@ public class InstitutionServiceImpl implements InstitutionService {
         List<CourseOrder> orderList = courseOrderDao.findAllByInstitutionIDAndStatus(institutionID, status);
         if (orderList == null) {
             return new ResultBundle<>(false, "暂无订课信息！", null);
-        }
-        else {
+        } else {
             return new ResultBundle<List>(false, "已获取订课信息！", orderList);
         }
+    }
+
+    @Override
+    public ResultBundle getTraineeInfoByName(String name) {
+        List<Trainee> traineeList = traineeDao.findAllByName(name);
+        if (traineeList == null || traineeList.size() == 0) {
+            return new ResultBundle<>(false, "暂无该学员优惠信息！", null);
+        } else {
+            ArrayList<TraineeInfoForInstitution> traineeArr = new ArrayList<>();
+            for (int i = 0; i < traineeList.size(); i++) {
+                int level = TraineeStrategy.getLevel(traineeList.get(i).getExpenditure());
+                double discount = TraineeStrategy.getDiscount(level);
+                TraineeInfoForInstitution traineeInfo = new TraineeInfoForInstitution(
+                        traineeList.get(i).getTrainee_id(),
+                        traineeList.get(i).getName(),
+                        traineeList.get(i).getEmail(),
+                        level,
+                        discount
+                );
+                traineeArr.add(traineeInfo);
+            }
+            return new ResultBundle<ArrayList>(true, "已获取学员优惠信息！", traineeArr);
+        }
+    }
+
+    @Override
+    public ResultBundle getAllTraineeInfo(int institutionID, String status) {
+        List<CourseOrder> orderList = courseOrderDao.findAllByInstitutionIDAndStatus(institutionID, status);
+        if (orderList == null || orderList.size() == 0) {
+            return new ResultBundle<>(false, "暂无该学员的优惠信息！", null);
+        }
+        ArrayList<TraineeInfoForInstitution> traineeArr = new ArrayList<>();
+        for (int i = 0; i < orderList.size(); i++) {
+            Trainee trainee = traineeDao.findOne(orderList.get(i).getTraineeID());
+            int level = TraineeStrategy.getLevel(trainee.getExpenditure());
+            double discount = TraineeStrategy.getDiscount(level);
+            TraineeInfoForInstitution traineeInfo = new TraineeInfoForInstitution(
+                    trainee.getTrainee_id(),
+                    trainee.getName(),
+                    trainee.getEmail(),
+                    level,
+                    discount
+            );
+            traineeArr.add(traineeInfo);
+        }
+        return new ResultBundle<ArrayList>(true, "已获取所有学员优惠信息！", traineeArr);
+    }
+
+    @Override
+    public ResultBundle courseRegistration(CourseRegistration courseRegistration) {
+        CourseRegistration courseRegistration1 = courseRegistrationDao.save(courseRegistration);
+        return new ResultBundle<>(true, "已录入听课登记记录！", courseRegistration1);
+    }
+
+    @Override
+    public ResultBundle getAllRegistrationInfo(int institutionID) {
+        List<CourseRegistration> registrationList = courseRegistrationDao.findAllByInstitutionID(institutionID);
+        return new ResultBundle<>(true, "已成功获取该机构听课登记信息！", registrationList);
     }
 
 }

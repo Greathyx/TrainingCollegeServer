@@ -1,6 +1,8 @@
 package com.training_college_server.controller;
 
+import com.training_college_server.dao.CourseOrderDao;
 import com.training_college_server.entity.Course;
+import com.training_college_server.entity.CourseRegistration;
 import com.training_college_server.entity.Institution;
 import com.training_college_server.entity.InstitutionApply;
 import com.training_college_server.service.InstitutionService;
@@ -12,6 +14,8 @@ import com.training_college_server.utils.ResultBundle;
 
 import javax.annotation.Resource;
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.List;
 
 
 @RestController
@@ -20,6 +24,9 @@ public class InstitutionController {
 
     @Resource
     private InstitutionService institutionService;
+
+    @Resource
+    private CourseOrderDao courseOrderDao;
 
     /**
      * 机构注册申请
@@ -134,4 +141,59 @@ public class InstitutionController {
         return institutionService.getAllOrdersByStatus(institutionID, status);
     }
 
+    /**
+     * 根据会员名字获取会员优惠信息
+     *
+     * @param name 会员姓名
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getTraineeInfoByName", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getTraineeInfoByName(String name) {
+        return institutionService.getTraineeInfoByName(name);
+    }
+
+    /**
+     * 获取所有会员优惠信息
+     *
+     * @param institutionID 机构ID
+     * @param status        订单状态
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getAllTraineeInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getAllTraineeInfo(int institutionID, String status) {
+        return institutionService.getAllTraineeInfo(institutionID, status);
+    }
+
+    /**
+     * 听课登记
+     *
+     * @param traineeID         学员ID
+     * @param courseID          课程ID
+     * @param traineeName       学员姓名
+     * @param courseName        课程名称
+     * @param registration_date 登记日期
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/courseRegistration", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle courseRegistration(int traineeID, int courseID, int institutionID, String traineeName,
+                                           String courseName, Timestamp registration_date) {
+        CourseRegistration courseRegistration = new CourseRegistration(traineeID, courseID,
+                institutionID, traineeName, courseName, registration_date);
+        return institutionService.courseRegistration(courseRegistration);
+    }
+
+    /**
+     * 获取该机构所有听课登记信息
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getAllRegistrationInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getAllRegistrationInfo(int institutionID) {
+        return institutionService.getAllRegistrationInfo(institutionID);
+    }
 }

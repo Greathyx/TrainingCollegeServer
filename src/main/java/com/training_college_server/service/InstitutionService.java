@@ -1,6 +1,7 @@
 package com.training_college_server.service;
 
 import com.training_college_server.entity.Course;
+import com.training_college_server.entity.CourseRegistration;
 import com.training_college_server.entity.Institution;
 import com.training_college_server.entity.InstitutionApply;
 import com.training_college_server.utils.ResultBundle;
@@ -57,5 +58,38 @@ public interface InstitutionService {
      * @return ResultBundle
      */
     ResultBundle getAllOrdersByStatus(int institutionID, String status);
+
+    /**
+     * 根据会员名字获取会员优惠信息
+     *
+     * @param name 会员姓名
+     * @return ResultBundle
+     */
+    ResultBundle getTraineeInfoByName(String name);
+
+    /**
+     * 获取所有会员优惠信息
+     *
+     * @param institutionID 机构ID
+     * @param status        订单状态
+     * @return ResultBundle
+     */
+    ResultBundle getAllTraineeInfo(int institutionID, String status);
+
+    /**
+     * 听课登记
+     *
+     * @param courseRegistration 听课登记对象
+     * @return ResultBundle
+     */
+    ResultBundle courseRegistration(CourseRegistration courseRegistration);
+
+    /**
+     * 获取该机构所有听课登记信息
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    ResultBundle getAllRegistrationInfo(int institutionID);
 
 }

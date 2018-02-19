@@ -9,8 +9,6 @@ import java.util.List;
 @Repository
 public interface InstitutionApplyDao extends JpaRepository<InstitutionApply, Integer> {
 
-//    InstitutionApply findByEmail(String email);
-
     List<InstitutionApply> findAllByTag(String tag);
 
 }

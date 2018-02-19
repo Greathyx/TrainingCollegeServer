@@ -30,7 +30,7 @@ public class UpdateOrderStatusService {
 
     private ScheduledFuture<?> future;
 
-    private CourseOrder courseOrder;
+    private int course_order_id;
 
     @Bean
     public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
@@ -38,7 +38,8 @@ public class UpdateOrderStatusService {
     }
 
     public void invalidateOrderStatus(int course_order_id) {
-        courseOrder = courseOrderDao.findOne(course_order_id);
+        this.course_order_id = course_order_id;
+        CourseOrder courseOrder = courseOrderDao.findOne(course_order_id);
         if (courseOrder != null) {
             Calendar cal = Calendar.getInstance(); // 获取当前时间
             cal.add(Calendar.MINUTE, 15); // 设置延迟15分钟
@@ -55,9 +56,11 @@ public class UpdateOrderStatusService {
     private class MyRunnable implements Runnable {
         @Override
         public void run() {
+            CourseOrder courseOrder = courseOrderDao.findOne(course_order_id);
+
             // 如果触发定时器时，该订单状态不为invalid且不为unsubscribe时，则关闭定时器
-            // 当触发定时器时，该订单状态已为invalid，则说明用户在15min内取消了订单
-            if (!courseOrder.getStatus().equals("invalid") && !(courseOrder.getStatus().equals("unsubscribe"))) {
+            // 当触发定时器时，该订单状态已为unsubscribe，则说明用户在15min内取消了订单
+            if (!(courseOrder.getStatus().equals("unsubscribe")) && !courseOrder.getStatus().equals("invalid")) {
                 // 设置订单状态为invalid
                 courseOrder.setStatus("invalid");
                 CourseOrder courseOrder1 = courseOrderDao.save(courseOrder);

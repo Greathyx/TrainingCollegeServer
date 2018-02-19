@@ -3,7 +3,6 @@ package com.training_college_server.entity;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
-import java.sql.Timestamp;
 
 
 @Entity
