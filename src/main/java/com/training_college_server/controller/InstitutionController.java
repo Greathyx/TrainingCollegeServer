@@ -1,10 +1,7 @@
 package com.training_college_server.controller;
 
 import com.training_college_server.dao.CourseOrderDao;
-import com.training_college_server.entity.Course;
-import com.training_college_server.entity.CourseRegistration;
-import com.training_college_server.entity.Institution;
-import com.training_college_server.entity.InstitutionApply;
+import com.training_college_server.entity.*;
 import com.training_college_server.service.InstitutionService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -196,4 +193,50 @@ public class InstitutionController {
     public ResultBundle getAllRegistrationInfo(int institutionID) {
         return institutionService.getAllRegistrationInfo(institutionID);
     }
+
+    /**
+     * 获取该机构所有没有登记成绩的学生
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getAllNoScoreTrainees", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getAllNoScoreTrainees(int institutionID) {
+        return institutionService.getAllNoScoreTrainees(institutionID);
+    }
+
+    /**
+     * 登记成绩
+     *
+     * @param course_order_id 订课订单ID
+     * @param traineeID       学员ID
+     * @param courseID        课程ID
+     * @param institutionID   机构ID
+     * @param trainee_name    学员姓名
+     * @param course_name     课程名称
+     * @param scores          成绩
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/setScores", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle setScores(int course_order_id, int traineeID, int courseID, int institutionID,
+                                  String trainee_name, String course_name, int scores) {
+        ScoresRegistration scoresRegistration = new ScoresRegistration(traineeID, courseID,
+                institutionID, trainee_name, course_name, scores);
+        return institutionService.setScores(course_order_id, scoresRegistration);
+    }
+
+    /**
+     * 获取该机构所有学生的登记成绩
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getAllTraineesScores", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getAllTraineesScores(int institutionID) {
+        return institutionService.getAllTraineesScores(institutionID);
+    }
+
 }

@@ -34,6 +34,9 @@ public class InstitutionServiceImpl implements InstitutionService {
     @Resource
     private CourseRegistrationDao courseRegistrationDao;
 
+    @Resource
+    private ScoresRegistrationDao scoresRegistrationDao;
+
     @Override
     public ResultBundle institutionApply(Institution institution, InstitutionApply institutionApply) {
         Institution institution1 = institutionDao.findByEmail(institution.getEmail());
@@ -189,6 +192,38 @@ public class InstitutionServiceImpl implements InstitutionService {
     public ResultBundle getAllRegistrationInfo(int institutionID) {
         List<CourseRegistration> registrationList = courseRegistrationDao.findAllByInstitutionID(institutionID);
         return new ResultBundle<>(true, "已成功获取该机构听课登记信息！", registrationList);
+    }
+
+    @Override
+    public ResultBundle getAllNoScoreTrainees(int institutionID) {
+        List<CourseOrder> orderList = courseOrderDao.findAllByInstitutionIDAndStatusAndScore(institutionID, "paid", false);
+        if (orderList == null || orderList.size() == 0) {
+            return new ResultBundle<>(false, "暂无未登记成绩的学员！", null);
+        }
+        return new ResultBundle<List>(true, "已获取未登记成绩的学员！", orderList);
+    }
+
+    @Override
+    public ResultBundle setScores(int course_order_id, ScoresRegistration scoresRegistration) {
+        CourseOrder courseOrder = courseOrderDao.findOne(course_order_id);
+        if (courseOrder == null) {
+            return new ResultBundle<>(false, "暂无学员订购该课程！", null);
+        }
+        courseOrder.setScore(true);
+        courseOrderDao.save(courseOrder);
+
+        scoresRegistrationDao.save(scoresRegistration);
+
+        return new ResultBundle<>(true, "已成功登记该学员成绩！", null);
+    }
+
+    @Override
+    public ResultBundle getAllTraineesScores(int institutionID) {
+        List<ScoresRegistration> scoresList = scoresRegistrationDao.findAllByInstitutionID(institutionID);
+        if (scoresList == null || scoresList.size() == 0) {
+            return new ResultBundle<>(false, "暂无该机构学员成绩！", null);
+        }
+        return new ResultBundle<List>(true, "已获取该机构学员成绩！", scoresList);
     }
 
 }

@@ -26,6 +26,7 @@ public class CourseOrder implements Serializable {
     private int minus_credits = 0;
     private Date book_time;
     private Date unsubscribe_time;
+    private boolean score = false;
 
     public CourseOrder() {
 
@@ -208,6 +209,15 @@ public class CourseOrder implements Serializable {
 
     public void setUnsubscribe_time(Date unsubscribe_time) {
         this.unsubscribe_time = unsubscribe_time;
+    }
+
+    @Column(name = "score")
+    public boolean isScore() {
+        return score;
+    }
+
+    public void setScore(boolean score) {
+        this.score = score;
     }
 
 }

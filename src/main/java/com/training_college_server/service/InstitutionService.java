@@ -1,9 +1,6 @@
 package com.training_college_server.service;
 
-import com.training_college_server.entity.Course;
-import com.training_college_server.entity.CourseRegistration;
-import com.training_college_server.entity.Institution;
-import com.training_college_server.entity.InstitutionApply;
+import com.training_college_server.entity.*;
 import com.training_college_server.utils.ResultBundle;
 
 public interface InstitutionService {
@@ -91,5 +88,30 @@ public interface InstitutionService {
      * @return ResultBundle
      */
     ResultBundle getAllRegistrationInfo(int institutionID);
+
+    /**
+     * 获取该机构所有没有登记成绩的学生
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    ResultBundle getAllNoScoreTrainees(int institutionID);
+
+    /**
+     * 登记成绩
+     *
+     * @param course_order_id    课程订单ID
+     * @param scoresRegistration 成绩登记对象
+     * @return ResultBundle
+     */
+    ResultBundle setScores(int course_order_id, ScoresRegistration scoresRegistration);
+
+    /**
+     * 获取该机构所有学生的登记成绩
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    ResultBundle getAllTraineesScores(int institutionID);
 
 }

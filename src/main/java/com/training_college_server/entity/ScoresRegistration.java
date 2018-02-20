@@ -2,44 +2,43 @@ package com.training_college_server.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Timestamp;
 
 
 @Entity
-@Table(name = "course_registration")
-public class CourseRegistration implements Serializable {
+@Table(name = "scores_registration")
+public class ScoresRegistration implements Serializable {
 
-    private int course_registration_id;
+    private int scores_registration_id;
     private int traineeID;
     private int courseID;
     private int institutionID;
     private String trainee_name;
     private String course_name;
-    private Timestamp registration_date;
+    private int scores;
 
-    public CourseRegistration() {
+    public ScoresRegistration() {
 
     }
 
-    public CourseRegistration(int traineeID, int courseID, int institutionID,
-                              String trainee_name, String course_name, Timestamp registration_date) {
+    public ScoresRegistration(int traineeID, int courseID, int institutionID,
+                              String trainee_name, String course_name, int scores) {
         this.traineeID = traineeID;
         this.courseID = courseID;
         this.institutionID = institutionID;
         this.trainee_name = trainee_name;
         this.course_name = course_name;
-        this.registration_date = registration_date;
+        this.scores = scores;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "course_registration_id")
-    public int getCourse_registration_id() {
-        return course_registration_id;
+    @Column(name = "scores_registration_id")
+    public int getScores_registration_id() {
+        return scores_registration_id;
     }
 
-    public void setCourse_registration_id(int course_registration_id) {
-        this.course_registration_id = course_registration_id;
+    public void setScores_registration_id(int scores_registration_id) {
+        this.scores_registration_id = scores_registration_id;
     }
 
     @Column(name = "traineeID")
@@ -77,6 +76,7 @@ public class CourseRegistration implements Serializable {
     public void setTrainee_name(String trainee_name) {
         this.trainee_name = trainee_name;
     }
+
     @Column(name = "course_name")
     public String getCourse_name() {
         return course_name;
@@ -86,13 +86,13 @@ public class CourseRegistration implements Serializable {
         this.course_name = course_name;
     }
 
-    @Column(name = "registration_date")
-    public Timestamp getRegistration_date() {
-        return registration_date;
+    @Column(name = "scores")
+    public int getScores() {
+        return scores;
     }
 
-    public void setRegistration_date(Timestamp registration_date) {
-        this.registration_date = registration_date;
+    public void setScores(int scores) {
+        this.scores = scores;
     }
 
 }
