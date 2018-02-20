@@ -12,4 +12,6 @@ public interface ScoresRegistrationDao extends JpaRepository<ScoresRegistration,
 
     List<ScoresRegistration> findAllByInstitutionID(int institutionID);
 
+    List<ScoresRegistration> findAllByTraineeID(int traineeID);
+
 }

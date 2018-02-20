@@ -12,4 +12,6 @@ public interface CourseRegistrationDao extends JpaRepository<CourseRegistration,
 
     List<CourseRegistration> findAllByInstitutionID(int institutionID);
 
+    List<CourseRegistration> findAllByTraineeID(int traineeID);
+
 }

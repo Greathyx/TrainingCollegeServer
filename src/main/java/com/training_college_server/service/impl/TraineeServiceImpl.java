@@ -1,14 +1,8 @@
 package com.training_college_server.service.impl;
 
 import com.training_college_server.bean.TraineeVipInfo;
-import com.training_college_server.dao.BankAccountDao;
-import com.training_college_server.dao.CourseDao;
-import com.training_college_server.dao.CourseOrderDao;
-import com.training_college_server.dao.TraineeDao;
-import com.training_college_server.entity.BankAccount;
-import com.training_college_server.entity.Course;
-import com.training_college_server.entity.CourseOrder;
-import com.training_college_server.entity.Trainee;
+import com.training_college_server.dao.*;
+import com.training_college_server.entity.*;
 import com.training_college_server.service.MailService;
 import com.training_college_server.service.TraineeService;
 //import org.springframework.data.domain.Sort;
@@ -44,6 +38,12 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Resource
     private BankAccountDao bankAccountDao;
+
+    @Resource
+    private ScoresRegistrationDao scoresRegistrationDao;
+
+    @Resource
+    private CourseRegistrationDao courseRegistrationDao;
 
     @Override
     public boolean hasRegistered(String email) {
@@ -424,6 +424,24 @@ public class TraineeServiceImpl implements TraineeService {
 
             return new ResultBundle<>(true, "已成功将" + String.valueOf(credits) + "积分兑换为卡余额！", null);
         }
+    }
+
+    @Override
+    public ResultBundle getAllScores(int traineeID) {
+        List<ScoresRegistration> scoresList = scoresRegistrationDao.findAllByTraineeID(traineeID);
+        if (scoresList == null || scoresList.size() == 0) {
+            return new ResultBundle<>(false, "暂无该学员成绩！", null);
+        }
+        return new ResultBundle<List>(true, "已获取该学员成绩！", scoresList);
+    }
+
+    @Override
+    public ResultBundle getAllCoursesRegistration(int traineeID) {
+        List<CourseRegistration> registrationList = courseRegistrationDao.findAllByTraineeID(traineeID);
+        if (registrationList == null || registrationList.size() == 0) {
+            return new ResultBundle<>(false, "暂无该学员听课记录！", null);
+        }
+        return new ResultBundle<List>(true, "已获取该学员听课记录！", registrationList);
     }
 
 }

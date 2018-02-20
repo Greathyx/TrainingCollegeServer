@@ -15,19 +15,21 @@ public class CourseRegistration implements Serializable {
     private int institutionID;
     private String trainee_name;
     private String course_name;
+    private String institution_name;
     private Timestamp registration_date;
 
     public CourseRegistration() {
 
     }
 
-    public CourseRegistration(int traineeID, int courseID, int institutionID,
-                              String trainee_name, String course_name, Timestamp registration_date) {
+    public CourseRegistration(int traineeID, int courseID, int institutionID, String trainee_name,
+                              String course_name, String institution_name, Timestamp registration_date) {
         this.traineeID = traineeID;
         this.courseID = courseID;
         this.institutionID = institutionID;
         this.trainee_name = trainee_name;
         this.course_name = course_name;
+        this.institution_name = institution_name;
         this.registration_date = registration_date;
     }
 
@@ -84,6 +86,15 @@ public class CourseRegistration implements Serializable {
 
     public void setCourse_name(String course_name) {
         this.course_name = course_name;
+    }
+
+    @Column(name = "institution_name")
+    public String getInstitution_name() {
+        return institution_name;
+    }
+
+    public void setInstitution_name(String institution_name) {
+        this.institution_name = institution_name;
     }
 
     @Column(name = "registration_date")

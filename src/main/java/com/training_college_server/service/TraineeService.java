@@ -126,4 +126,20 @@ public interface TraineeService {
      */
     ResultBundle creditsExchange(int trainee_id, int credits, String identity);
 
+    /**
+     * 获取学员所有课程成绩
+     *
+     * @param traineeID 学员ID
+     * @return ResultBundle
+     */
+    ResultBundle getAllScores(int traineeID);
+
+    /**
+     * 获取学员所有听课登记记录
+     *
+     * @param traineeID 学员ID
+     * @return ResultBundle
+     */
+    ResultBundle getAllCoursesRegistration(int traineeID);
+
 }

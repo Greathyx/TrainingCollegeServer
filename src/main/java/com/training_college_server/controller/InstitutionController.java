@@ -176,9 +176,9 @@ public class InstitutionController {
     @RequestMapping(path = "/courseRegistration", method = RequestMethod.POST)
     @ResponseBody
     public ResultBundle courseRegistration(int traineeID, int courseID, int institutionID, String traineeName,
-                                           String courseName, Timestamp registration_date) {
+                                           String courseName, String institutionName, Timestamp registration_date) {
         CourseRegistration courseRegistration = new CourseRegistration(traineeID, courseID,
-                institutionID, traineeName, courseName, registration_date);
+                institutionID, traineeName, courseName, institutionName, registration_date);
         return institutionService.courseRegistration(courseRegistration);
     }
 
@@ -221,9 +221,9 @@ public class InstitutionController {
     @RequestMapping(path = "/setScores", method = RequestMethod.POST)
     @ResponseBody
     public ResultBundle setScores(int course_order_id, int traineeID, int courseID, int institutionID,
-                                  String trainee_name, String course_name, int scores) {
+                                  String trainee_name, String course_name, String institution_name, int scores) {
         ScoresRegistration scoresRegistration = new ScoresRegistration(traineeID, courseID,
-                institutionID, trainee_name, course_name, scores);
+                institutionID, trainee_name, course_name, institution_name, scores);
         return institutionService.setScores(course_order_id, scoresRegistration);
     }
 

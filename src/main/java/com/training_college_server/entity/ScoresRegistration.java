@@ -14,19 +14,21 @@ public class ScoresRegistration implements Serializable {
     private int institutionID;
     private String trainee_name;
     private String course_name;
+    private String institution_name;
     private int scores;
 
     public ScoresRegistration() {
 
     }
 
-    public ScoresRegistration(int traineeID, int courseID, int institutionID,
-                              String trainee_name, String course_name, int scores) {
+    public ScoresRegistration(int traineeID, int courseID, int institutionID, String trainee_name,
+                              String course_name, String institution_name, int scores) {
         this.traineeID = traineeID;
         this.courseID = courseID;
         this.institutionID = institutionID;
         this.trainee_name = trainee_name;
         this.course_name = course_name;
+        this.institution_name = institution_name;
         this.scores = scores;
     }
 
@@ -84,6 +86,15 @@ public class ScoresRegistration implements Serializable {
 
     public void setCourse_name(String course_name) {
         this.course_name = course_name;
+    }
+
+    @Column(name = "institution_name")
+    public String getInstitution_name() {
+        return institution_name;
+    }
+
+    public void setInstitution_name(String institution_name) {
+        this.institution_name = institution_name;
     }
 
     @Column(name = "scores")
