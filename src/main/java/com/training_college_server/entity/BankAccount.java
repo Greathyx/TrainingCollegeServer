@@ -13,6 +13,7 @@ public class BankAccount implements Serializable {
     private String identity;
     private String password;
     private double balance;
+    private String type;
 
     public BankAccount() {
 
@@ -63,6 +64,15 @@ public class BankAccount implements Serializable {
 
     public void setBalance(double balance) {
         this.balance = balance;
+    }
+
+    @Column(name = "type")
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
 }

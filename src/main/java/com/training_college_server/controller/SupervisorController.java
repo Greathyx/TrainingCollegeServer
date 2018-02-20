@@ -101,4 +101,27 @@ public class SupervisorController {
         mailService.sendSupervisorReply(to, title, content);
     }
 
+    /**
+     * 获取所有要结算钱款的机构列表
+     *
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getToSettleList", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBundle getToSettleList() {
+        return supervisorService.getToSettleList();
+    }
+
+    /**
+     * 结算各机构应得钱款
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/settlePayment", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle settlePayment(int institutionID, double course_earning) {
+        return supervisorService.settlePayment(institutionID, course_earning);
+    }
+
 }

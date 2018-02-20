@@ -58,9 +58,11 @@ public class UpdateOrderStatusService {
         public void run() {
             CourseOrder courseOrder = courseOrderDao.findOne(course_order_id);
 
-            // 如果触发定时器时，该订单状态不为invalid且不为unsubscribe时，则关闭定时器
+            // 如果触发定时器时，该订单状态不为invalid且不为unsubscribe且不为paid时，则关闭定时器
             // 当触发定时器时，该订单状态已为unsubscribe，则说明用户在15min内取消了订单
-            if (!(courseOrder.getStatus().equals("unsubscribe")) && !courseOrder.getStatus().equals("invalid")) {
+            if (!(courseOrder.getStatus().equals("unsubscribe"))
+                    && !courseOrder.getStatus().equals("paid")
+                    && !courseOrder.getStatus().equals("invalid")) {
                 // 设置订单状态为invalid
                 courseOrder.setStatus("invalid");
                 CourseOrder courseOrder1 = courseOrderDao.save(courseOrder);

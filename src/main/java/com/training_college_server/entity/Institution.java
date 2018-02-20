@@ -16,6 +16,7 @@ public class Institution implements Serializable {
     private String location;
     private String faculty;
     private String introduction;
+    private double earning = 0;
 
     public Institution() {
 
@@ -114,6 +115,15 @@ public class Institution implements Serializable {
 
     public void setIntroduction(String introduction) {
         this.introduction = introduction;
+    }
+
+    @Column(name = "earning")
+    public double getEarning() {
+        return earning;
+    }
+
+    public void setEarning(double earning) {
+        this.earning = earning;
     }
 
 }

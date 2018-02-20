@@ -38,4 +38,19 @@ public interface SupervisorService {
      */
     ResultBundle rejectApply(int institution_apply_id);
 
+    /**
+     * 获取所有要结算钱款的机构列表
+     *
+     * @return ResultBundle
+     */
+    ResultBundle getToSettleList();
+
+    /**
+     * 结算各机构应得钱款
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    ResultBundle settlePayment(int institutionID, double course_earning);
+
 }

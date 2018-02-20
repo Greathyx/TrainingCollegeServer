@@ -7,6 +7,7 @@ import com.training_college_server.service.MailService;
 import com.training_college_server.service.TraineeService;
 //import org.springframework.data.domain.Sort;
 import com.training_college_server.service.UpdateOrderStatusService;
+import com.training_college_server.utils.SupervisorHelper;
 import org.springframework.stereotype.Component;
 import com.training_college_server.utils.ResultBundle;
 import com.training_college_server.utils.TraineeStrategy;
@@ -326,9 +327,13 @@ public class TraineeServiceImpl implements TraineeService {
                 trainee.setCredit(trainee.getCredit() - add_credits);
                 Trainee trainee1 = traineeDao.save(trainee); // 写入数据库
 
-                // 获取银行账户
                 double payment = courseOrder1.getPayment();
-                BankAccount bankAccount = bankAccountDao.findByHolder(courseOrder1.getTraineeID());
+                // 获取银行账户
+                BankAccount bankAccount = bankAccountDao.findByHolderAndType(courseOrder1.getTraineeID(), "trainee");
+
+                // 获取若水教育银行账户余额
+                int supervisor_id = SupervisorHelper.getSupervisorID();
+                BankAccount supervisor_account = bankAccountDao.findByHolderAndType(supervisor_id, "supervisor");
 
                 // 存入扣除的积分
                 courseOrder1.setMinus_credits(add_credits);
@@ -342,6 +347,11 @@ public class TraineeServiceImpl implements TraineeService {
 
                     bankAccount.setBalance(bankAccount.getBalance() + money_back);
                     bankAccountDao.save(bankAccount);
+
+                    // 将退款差价计算入若水银行账户
+                    supervisor_account.setBalance(supervisor_account.getBalance() + payment - money_back);
+                    bankAccountDao.save(supervisor_account);
+
                     // 减少相应数目的累计消费金额
                     trainee1.setExpenditure(trainee1.getExpenditure() - money_back);
                     traineeDao.save(trainee1);
@@ -362,6 +372,11 @@ public class TraineeServiceImpl implements TraineeService {
 
                     bankAccount.setBalance(bankAccount.getBalance() + money_back);
                     bankAccountDao.save(bankAccount);
+
+                    // 将退款差价计算入若水银行账户
+                    supervisor_account.setBalance(supervisor_account.getBalance() + payment - money_back);
+                    bankAccountDao.save(supervisor_account);
+
                     // 减少相应数目的累计消费金额
                     trainee1.setExpenditure(trainee1.getExpenditure() - money_back);
                     traineeDao.save(trainee1);
@@ -380,6 +395,11 @@ public class TraineeServiceImpl implements TraineeService {
 
                 bankAccount.setBalance(bankAccount.getBalance() + money_back);
                 bankAccountDao.save(bankAccount);
+
+                // 将退款差价计算入若水银行账户
+                supervisor_account.setBalance(supervisor_account.getBalance() + payment - money_back);
+                bankAccountDao.save(supervisor_account);
+
                 // 减少相应数目的累计消费金额
                 trainee1.setExpenditure(trainee1.getExpenditure() - money_back);
                 traineeDao.save(trainee1);

@@ -1,16 +1,16 @@
 package com.training_college_server.service.impl;
 
-import com.training_college_server.dao.InstitutionApplyDao;
-import com.training_college_server.dao.InstitutionDao;
-import com.training_college_server.dao.SupervisorDao;
-import com.training_college_server.entity.Institution;
-import com.training_college_server.entity.InstitutionApply;
-import com.training_college_server.entity.Supervisor;
+import com.training_college_server.bean.InstitutionEarningInfo;
+import com.training_college_server.dao.*;
+import com.training_college_server.entity.*;
 import com.training_college_server.service.SupervisorService;
+import com.training_college_server.utils.SupervisorHelper;
 import org.springframework.stereotype.Component;
 import com.training_college_server.utils.ResultBundle;
 import com.training_college_server.utils.VerificationCode;
+
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +26,12 @@ public class SupervisorServiceImpl implements SupervisorService {
 
     @Resource
     private InstitutionDao institutionDao;
+
+    @Resource
+    private BankAccountDao bankAccountDao;
+
+    @Resource
+    private CourseOrderDao courseOrderDao;
 
     // done表示机构申请已被处理
     private String doneTag = "done";
@@ -112,8 +118,7 @@ public class SupervisorServiceImpl implements SupervisorService {
 
             return new ResultBundle<>(true, "已批准机构修改信息申请！", institution1);
 
-        }
-        else {
+        } else {
             return new ResultBundle<Institution>(false, "处理失败！", null);
         }
 
@@ -137,6 +142,76 @@ public class SupervisorServiceImpl implements SupervisorService {
         } else {
             return new ResultBundle<Institution>(false, "处理失败！", null);
         }
+    }
+
+    @Override
+    public ResultBundle getToSettleList() {
+        List<Institution> institutionList = institutionDao.findAll();
+        if (institutionList == null || institutionList.size() == 0) {
+            return new ResultBundle<>(false, "暂无已注册机构！", null);
+        }
+
+        ArrayList<InstitutionEarningInfo> earningInfos = new ArrayList<>();
+
+        for (int i = 0; i < institutionList.size(); i++) {
+            // 根据机构ID在course_order表中找出没有结算的订单项，并将这些项中的payment累加
+            List<CourseOrder> orderList = courseOrderDao.findAllByInstitutionIDAndStatusAndSettled
+                    (institutionList.get(i).getInstitution_id(), "paid", false);
+            if (orderList != null && orderList.size() != 0) {
+                double course_earning = 0;
+                for (int j = 0; j < orderList.size(); j++) {
+                    course_earning += orderList.get(j).getPayment();
+                }
+                InstitutionEarningInfo earningInfo = new InstitutionEarningInfo(
+                        institutionList.get(i).getInstitution_id(),
+                        institutionList.get(i).getName(),
+                        institutionList.get(i).getEarning(),
+                        course_earning,
+                        0.8 * course_earning
+                );
+                earningInfos.add(earningInfo);
+            }
+        }
+
+        return new ResultBundle<ArrayList>(true, "已获取待结算机构列表！", earningInfos);
+    }
+
+    @Override
+    public ResultBundle settlePayment(int institutionID, double course_earning) {
+        List<CourseOrder> orderList = courseOrderDao.findAllByInstitutionIDAndStatusAndSettled
+                (institutionID, "paid", false);
+
+        Institution institution = institutionDao.findOne(institutionID);
+
+        // 将所得金额的的80%结算给机构，并将机构所得存入institution表中对应机构项中
+        // 四舍五入保留2位小数
+        BigDecimal bigDecimal = new BigDecimal(0.8 * course_earning);
+        double institution_earning = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        institution.setEarning(institution.getEarning() + institution_earning);
+        institutionDao.save(institution);
+
+        BankAccount institution_account = bankAccountDao.findByHolderAndType(institutionID, "institution");
+        institution_account.setBalance(institution_account.getBalance() + institution_earning);
+        bankAccountDao.save(institution_account);
+
+        // 20%结算给若水教育，并增加若水教育银行账户余额
+        // 四舍五入保留2位小数
+        BigDecimal bigDecimal2 = new BigDecimal(0.2 * course_earning);
+        double supervisor_earning = bigDecimal2.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+        BankAccount supervisor_account = bankAccountDao.findByHolderAndType(
+                SupervisorHelper.getSupervisorID(), "supervisor"
+        );
+        supervisor_account.setBalance(supervisor_account.getBalance() + supervisor_earning);
+        bankAccountDao.save(supervisor_account);
+
+        // 将course_order表中对应项的settled记为true
+        for (int i = 0; i < orderList.size(); i++) {
+            orderList.get(i).setSettled(true);
+        }
+        courseOrderDao.save(orderList);
+
+        return new ResultBundle<>(true, "已将金额结算给该机构！", null);
     }
 
 }

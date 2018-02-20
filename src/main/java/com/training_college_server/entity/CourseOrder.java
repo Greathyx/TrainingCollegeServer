@@ -26,7 +26,8 @@ public class CourseOrder implements Serializable {
     private int minus_credits = 0;
     private Date book_time;
     private Date unsubscribe_time;
-    private boolean score = false;
+    private boolean score = false; // 是否登记了成绩的标志
+    private boolean settled = false; // 是否将费用结算给机构的标志
 
     public CourseOrder() {
 
@@ -218,6 +219,15 @@ public class CourseOrder implements Serializable {
 
     public void setScore(boolean score) {
         this.score = score;
+    }
+
+    @Column(name = "settled")
+    public boolean isSettled() {
+        return settled;
+    }
+
+    public void setSettled(boolean settled) {
+        this.settled = settled;
     }
 
 }
