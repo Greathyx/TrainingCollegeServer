@@ -510,11 +510,9 @@ public class TraineeServiceImpl implements TraineeService {
                 }
             }
 
-//            if (payment_sum != 0) {
             statics_unit[0] = String.valueOf(i) + "月";
             statics_unit[1] = String.valueOf(payment_sum);
             staticsList.add(statics_unit);
-//            }
         }
         return new ResultBundle<ArrayList>(true, "已获取本年每月消费统计柱状图数据！", staticsList);
     }

@@ -22,9 +22,6 @@ public class InstitutionController {
     @Resource
     private InstitutionService institutionService;
 
-    @Resource
-    private CourseOrderDao courseOrderDao;
-
     /**
      * 机构注册申请
      *
@@ -237,6 +234,30 @@ public class InstitutionController {
     @ResponseBody
     public ResultBundle getAllTraineesScores(int institutionID) {
         return institutionService.getAllTraineesScores(institutionID);
+    }
+
+    /**
+     * 获取机构本年每月课程收入及订课人数数据
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getStatisticsForBarChart", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getStatisticsForBarChart(int institutionID) {
+        return institutionService.getStatisticsForBarChart(institutionID);
+    }
+
+    /**
+     * 获取机构本年各类型课程收入占比饼图数据
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getStatisticsForPieChart", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getStatisticsForPieChart(int institutionID) {
+        return institutionService.getStatisticsForPieChart(institutionID);
     }
 
 }

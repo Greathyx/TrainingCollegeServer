@@ -254,7 +254,7 @@ public class TraineeController {
     }
 
     /**
-     * 获取学员本年各类型课程支出占比饼图饼图数据
+     * 获取学员本年各类型课程支出占比饼图数据
      *
      * @param traineeID 学员ID
      * @return ResultBundle

@@ -114,4 +114,20 @@ public interface InstitutionService {
      */
     ResultBundle getAllTraineesScores(int institutionID);
 
+    /**
+     * 获取机构本年每月课程收入及订课人数数据
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    ResultBundle getStatisticsForBarChart(int institutionID);
+
+    /**
+     * 获取机构本年各类型课程收入占比饼图数据
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    ResultBundle getStatisticsForPieChart(int institutionID);
+
 }
