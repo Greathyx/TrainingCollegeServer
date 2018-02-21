@@ -2,11 +2,14 @@ package com.training_college_server.service.impl;
 
 import com.training_college_server.bean.InstitutionEarningInfo;
 import com.training_college_server.bean.InstitutionStatistics;
+import com.training_college_server.bean.TraineeStatistics;
 import com.training_college_server.dao.*;
 import com.training_college_server.entity.*;
 import com.training_college_server.service.InstitutionService;
 import com.training_college_server.service.SupervisorService;
+import com.training_college_server.service.TraineeService;
 import com.training_college_server.utils.SupervisorHelper;
+import com.training_college_server.utils.TraineeStrategy;
 import org.springframework.stereotype.Component;
 import com.training_college_server.utils.ResultBundle;
 import com.training_college_server.utils.VerificationCode;
@@ -41,7 +44,13 @@ public class SupervisorServiceImpl implements SupervisorService {
     private CourseDao courseDao;
 
     @Resource
+    private TraineeDao traineeDao;
+
+    @Resource
     private InstitutionService institutionService;
+
+    @Resource
+    private TraineeService traineeService;
 
     // done表示机构申请已被处理
     private String doneTag = "done";
@@ -398,8 +407,10 @@ public class SupervisorServiceImpl implements SupervisorService {
                 }
             }
 
-            InstitutionStatistics statistics = new InstitutionStatistics(institutionName, total_earning,
-                    this_year_earning, total_course_amount, this_year_paid_amount, this_year_unsubscribe_amount);
+            InstitutionStatistics statistics = new InstitutionStatistics(
+                    institutionName, total_earning, this_year_earning, total_course_amount,
+                    this_year_paid_amount, this_year_unsubscribe_amount
+            );
             staticsList.add(statistics);
         }
 
@@ -407,6 +418,78 @@ public class SupervisorServiceImpl implements SupervisorService {
             return new ResultBundle<>(false, "暂无已注册机构！", null);
         }
         return new ResultBundle<>(true, "已获取已注册机构数据统计信息！", staticsList);
+    }
+
+    @Override
+    public ResultBundle getTraineeStatistics() {
+        ArrayList<TraineeStatistics> staticsList = new ArrayList<>();
+
+        // 外层循环，遍历每个已注册学员
+        List<Trainee> traineeList = traineeDao.findAll();
+        for (int i = 0; i < traineeList.size(); i++) {
+            int traineeID = traineeList.get(i).getTrainee_id();
+            // 学员姓名
+            String traineeName = traineeList.get(i).getName();
+
+            // 学员邮箱
+            String email = traineeList.get(i).getEmail();
+
+            // 会员等级
+            int level = TraineeStrategy.getLevel(traineeList.get(i).getExpenditure());
+
+            // 会员积分
+            int credit = traineeList.get(i).getCredit();
+
+            // 会员状态
+            boolean is_active = traineeList.get(i).getIs_active();
+
+            // 总支出
+            double total_expense = 0;
+            List<CourseOrder> all_year_orders = courseOrderDao.findAllByTraineeIDAndStatus(traineeID, "paid");
+            for (int j = 0; j < all_year_orders.size(); j++) {
+                BigDecimal bigDecimal = new BigDecimal(all_year_orders.get(j).getPayment());
+                double single_expense = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                total_expense += single_expense;
+            }
+
+            // 本年支出
+            double this_year_expense = 0;
+            ArrayList<CourseOrder> this_year_orders = traineeService.getThisYearStatics(traineeID);
+            for (int j = 0; j < this_year_orders.size(); j++) {
+                BigDecimal bigDecimal = new BigDecimal(this_year_orders.get(j).getPayment());
+                double single_expense = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                this_year_expense += single_expense;
+            }
+
+            // 总订课程数
+            int total_course_amount = all_year_orders.size();
+
+            // 本年订课数
+            int this_year_paid_amount = this_year_orders.size();
+
+            // 本年退课数
+            int this_year_unsubscribe_amount = 0;
+            List<CourseOrder> all_year_unsubscribe_orders = courseOrderDao.findAllByTraineeIDAndStatus(traineeID, "unsubscribe");
+            Calendar cal_now = Calendar.getInstance(); // 获取当前时间
+            int this_year = cal_now.get(Calendar.YEAR); //获取本年年份
+            for (int j = 0; j < all_year_unsubscribe_orders.size(); j++) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(all_year_unsubscribe_orders.get(j).getUnsubscribe_time());
+                if (cal.get(Calendar.YEAR) == this_year) {
+                    this_year_unsubscribe_amount++;
+                }
+            }
+
+            TraineeStatistics traineeStatistics = new TraineeStatistics(
+                    traineeName, email, total_expense, this_year_expense, total_course_amount,
+                    this_year_paid_amount, this_year_unsubscribe_amount, level, credit, is_active
+            );
+            staticsList.add(traineeStatistics);
+        }
+        if (staticsList.size() == 0) {
+            return new ResultBundle<>(false, "暂无已注册会员！", null);
+        }
+        return new ResultBundle<>(true, "已获取已注册会员数据统计信息！", staticsList);
     }
 
 }

@@ -168,4 +168,15 @@ public class SupervisorController {
         return supervisorService.getInstitutionStatistics();
     }
 
+    /**
+     * 获取所有会员统计数据
+     *
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getTraineeStatistics", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBundle getTraineeStatistics() {
+        return supervisorService.getTraineeStatistics();
+    }
+
 }

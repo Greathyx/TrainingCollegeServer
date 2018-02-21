@@ -4,6 +4,8 @@ import com.training_college_server.entity.CourseOrder;
 import com.training_college_server.entity.Trainee;
 import com.training_college_server.utils.ResultBundle;
 
+import java.util.ArrayList;
+
 
 public interface TraineeService {
 
@@ -141,6 +143,14 @@ public interface TraineeService {
      * @return ResultBundle
      */
     ResultBundle getAllCoursesRegistration(int traineeID);
+
+    /**
+     * 获取本年订单数据
+     *
+     * @param traineeID 学员ID
+     * @return 本年订单数据
+     */
+    ArrayList<CourseOrder> getThisYearStatics(int traineeID);
 
     /**
      * 获取学员本年每月消费统计柱状图数据

@@ -81,4 +81,11 @@ public interface SupervisorService {
      */
     ResultBundle getInstitutionStatistics();
 
+    /**
+     * 获取所有会员统计数据
+     *
+     * @return ResultBundle
+     */
+    ResultBundle getTraineeStatistics();
+
 }

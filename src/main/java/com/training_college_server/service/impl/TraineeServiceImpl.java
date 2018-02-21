@@ -466,13 +466,8 @@ public class TraineeServiceImpl implements TraineeService {
         return new ResultBundle<List>(true, "已获取该学员听课记录！", registrationList);
     }
 
-    /**
-     * 获取本年订单数据
-     *
-     * @param traineeID 学员ID
-     * @return 本年订单数据
-     */
-    private ArrayList<CourseOrder> getThisYearStatics(int traineeID) {
+    @Override
+    public ArrayList<CourseOrder> getThisYearStatics(int traineeID) {
         List<CourseOrder> orderList_all_year = courseOrderDao.findAllByTraineeIDAndStatus(traineeID, "paid");
         ArrayList<CourseOrder> list_this_year = new ArrayList<>();
 
