@@ -7,6 +7,7 @@ import com.training_college_server.service.MailService;
 import com.training_college_server.service.TraineeService;
 //import org.springframework.data.domain.Sort;
 import com.training_college_server.service.UpdateOrderStatusService;
+import com.training_college_server.utils.CourseType;
 import com.training_college_server.utils.SupervisorHelper;
 import org.springframework.stereotype.Component;
 import com.training_college_server.utils.ResultBundle;
@@ -15,6 +16,7 @@ import com.training_college_server.utils.TraineeStrategy;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -462,6 +464,89 @@ public class TraineeServiceImpl implements TraineeService {
             return new ResultBundle<>(false, "暂无该学员听课记录！", null);
         }
         return new ResultBundle<List>(true, "已获取该学员听课记录！", registrationList);
+    }
+
+    /**
+     * 获取本年订单数据
+     *
+     * @param traineeID 学员ID
+     * @return 本年订单数据
+     */
+    private ArrayList<CourseOrder> getThisYearStatics(int traineeID) {
+        List<CourseOrder> orderList_all_year = courseOrderDao.findAllByTraineeIDAndStatus(traineeID, "paid");
+        ArrayList<CourseOrder> list_this_year = new ArrayList<>();
+
+        Calendar cal_now = Calendar.getInstance(); // 获取当前时间
+        int this_year = cal_now.get(Calendar.YEAR); //获取本年年份
+
+        for (int i = 0; i < orderList_all_year.size(); i++) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(orderList_all_year.get(i).getBook_time());
+            if (cal.get(Calendar.YEAR) == this_year) {
+                list_this_year.add(orderList_all_year.get(i));
+            }
+        }
+        return list_this_year;
+    }
+
+    @Override
+    public ResultBundle getStatisticsForBarChart(int traineeID) {
+        ArrayList<String[]> staticsList = new ArrayList<>();
+
+        // 获取本年的数据
+        ArrayList<CourseOrder> orderList = this.getThisYearStatics(traineeID);
+
+        // 1～12表示1月～12月
+        for (int i = 1; i <= 12; i++) {
+            String[] statics_unit = new String[2];
+            double payment_sum = 0;
+
+            for (int j = 0; j < orderList.size(); j++) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(orderList.get(j).getBook_time());
+                int month = cal.get(Calendar.MONTH) + 1;  // 获取月份
+                if (month == i) {
+                    payment_sum += orderList.get(j).getPayment();
+                }
+            }
+
+//            if (payment_sum != 0) {
+            statics_unit[0] = String.valueOf(i) + "月";
+            statics_unit[1] = String.valueOf(payment_sum);
+            staticsList.add(statics_unit);
+//            }
+        }
+        return new ResultBundle<ArrayList>(true, "已获取本年每月消费统计柱状图数据！", staticsList);
+    }
+
+    @Override
+    public ResultBundle getStatisticsForPieChart(int traineeID) {
+        ArrayList<String[]> staticsList = new ArrayList<>();
+
+        // 获取本年的数据
+        ArrayList<CourseOrder> orderList = this.getThisYearStatics(traineeID);
+
+        // 找出属于订购的同一个类型的课程，并将其支出累加
+        String[] typeList = CourseType.getTypeList();
+        for (int i = 0; i < typeList.length; i++) {
+            String[] statics_unit = new String[2];
+            double payment_sum = 0;
+
+            // 将同一类型的课程的支出累加
+            for (int j = 0; j < orderList.size(); j++) {
+                Course course = courseDao.findOne(orderList.get(j).getCourseID());
+                if (course.getType().equals(typeList[i])) {
+                    payment_sum += orderList.get(j).getPayment();
+                }
+            }
+
+            if (payment_sum != 0) {
+                statics_unit[0] = typeList[i];
+                statics_unit[1] = String.valueOf(payment_sum);
+                staticsList.add(statics_unit);
+            }
+        }
+        return new ResultBundle<ArrayList>(true, "已获取本年各类型课程支出占比饼图的数据！", staticsList);
     }
 
 }

@@ -241,4 +241,28 @@ public class TraineeController {
         return traineeService.getAllCoursesRegistration(traineeID);
     }
 
+    /**
+     * 获取学员本年每月消费统计柱状图数据
+     *
+     * @param traineeID 学员ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getStatisticsForBarChart", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getStatisticsForBarChart(int traineeID) {
+        return traineeService.getStatisticsForBarChart(traineeID);
+    }
+
+    /**
+     * 获取学员本年各类型课程支出占比饼图饼图数据
+     *
+     * @param traineeID 学员ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getStatisticsForPieChart", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getStatisticsForPieChart(int traineeID) {
+        return traineeService.getStatisticsForPieChart(traineeID);
+    }
+
 }
