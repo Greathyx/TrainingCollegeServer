@@ -230,21 +230,35 @@ public class InstitutionServiceImpl implements InstitutionService {
         return new ResultBundle<List>(true, "已获取该机构学员成绩！", scoresList);
     }
 
-    private ArrayList<CourseOrder> getThisYearStatics(int institutionID) {
-        List<CourseOrder> orderList_all_year = courseOrderDao.findAllByInstitutionIDAndStatus(institutionID, "paid");
+    @Override
+    public ArrayList<CourseOrder> getThisYearStatics(int institutionID, String status) {
+        List<CourseOrder> orderList_all_year = courseOrderDao.findAllByInstitutionIDAndStatus(institutionID, status);
         ArrayList<CourseOrder> list_this_year = new ArrayList<>();
 
         Calendar cal_now = Calendar.getInstance(); // 获取当前时间
         int this_year = cal_now.get(Calendar.YEAR); //获取本年年份
 
-        for (int i = 0; i < orderList_all_year.size(); i++) {
-            Date date = orderList_all_year.get(i).getBook_time();
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(date);
-            if (cal.get(Calendar.YEAR) == this_year) {
-                list_this_year.add(orderList_all_year.get(i));
+        if (status.equals("paid")) {
+            for (int i = 0; i < orderList_all_year.size(); i++) {
+                Date date = orderList_all_year.get(i).getBook_time();
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                if (cal.get(Calendar.YEAR) == this_year) {
+                    list_this_year.add(orderList_all_year.get(i));
+                }
             }
         }
+        else if(status.equals("unsubscribe")) {
+            for (int i = 0; i < orderList_all_year.size(); i++) {
+                Date date = orderList_all_year.get(i).getUnsubscribe_time();
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                if (cal.get(Calendar.YEAR) == this_year) {
+                    list_this_year.add(orderList_all_year.get(i));
+                }
+            }
+        }
+
         return list_this_year;
     }
 
@@ -253,7 +267,7 @@ public class InstitutionServiceImpl implements InstitutionService {
         ArrayList<String[]> staticsList = new ArrayList<>();
 
         // 获取本年的数据
-        ArrayList<CourseOrder> orderList = this.getThisYearStatics(institutionID);
+        ArrayList<CourseOrder> orderList = this.getThisYearStatics(institutionID, "paid");
 
         // 1～12表示1月～12月
         for (int i = 1; i <= 12; i++) {
@@ -288,7 +302,7 @@ public class InstitutionServiceImpl implements InstitutionService {
         ArrayList<String[]> staticsList = new ArrayList<>();
 
         // 获取本年的数据
-        ArrayList<CourseOrder> orderList = this.getThisYearStatics(institutionID);
+        ArrayList<CourseOrder> orderList = this.getThisYearStatics(institutionID, "paid");
 
         // 找出属于订购的同一个类型的课程，并将其收入累加
         String[] typeList = CourseType.getTypeList();

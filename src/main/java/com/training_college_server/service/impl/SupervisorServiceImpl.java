@@ -1,8 +1,10 @@
 package com.training_college_server.service.impl;
 
 import com.training_college_server.bean.InstitutionEarningInfo;
+import com.training_college_server.bean.InstitutionStatistics;
 import com.training_college_server.dao.*;
 import com.training_college_server.entity.*;
+import com.training_college_server.service.InstitutionService;
 import com.training_college_server.service.SupervisorService;
 import com.training_college_server.utils.SupervisorHelper;
 import org.springframework.stereotype.Component;
@@ -34,6 +36,12 @@ public class SupervisorServiceImpl implements SupervisorService {
 
     @Resource
     private CourseOrderDao courseOrderDao;
+
+    @Resource
+    private CourseDao courseDao;
+
+    @Resource
+    private InstitutionService institutionService;
 
     // done表示机构申请已被处理
     private String doneTag = "done";
@@ -333,6 +341,72 @@ public class SupervisorServiceImpl implements SupervisorService {
         staticsList.add(statics_unit_unsubscribe);
 
         return new ResultBundle<ArrayList>(true, "已获取本年收入来源占比饼图的数据！", staticsList);
+    }
+
+    @Override
+    public ResultBundle getInstitutionStatistics() {
+        ArrayList<InstitutionStatistics> staticsList = new ArrayList<>();
+
+        List<Institution> institutionList = institutionDao.findAll();
+        // 外层循环，遍历每个已注册机构
+        for (int i = 0; i < institutionList.size(); i++) {
+            int institutionID = institutionList.get(i).getInstitution_id();
+            // 机构名称
+            String institutionName = institutionList.get(i).getName();
+
+            // 全部订单列表
+            List<CourseOrder> all_year_orders = courseOrderDao.findAllByInstitutionIDAndStatus(institutionID, "paid");
+            // 总盈利数额
+            double total_earning = 0;
+            for (int j = 0; j < all_year_orders.size(); j++) {
+                // 80%结算给机构
+                BigDecimal bigDecimal = new BigDecimal(all_year_orders.get(j).getPayment() * 0.8);
+                double single_earning = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                total_earning += single_earning;
+            }
+
+            // 本年订单列表
+            ArrayList<CourseOrder> this_year_paid_orders = institutionService.getThisYearStatics(institutionID, "paid");
+
+            // 本年盈利数额
+            double this_year_earning = 0;
+            for (int j = 0; j < this_year_paid_orders.size(); j++) {
+                // 80%结算给机构
+                BigDecimal bigDecimal = new BigDecimal(this_year_paid_orders.get(j).getPayment() * 0.8);
+                double single_earning = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                this_year_earning += single_earning;
+            }
+
+            // 总课程数
+            int total_course_amount = courseDao.countAllByPublisher(institutionID);
+
+            // 本年订单数
+            int this_year_paid_amount = this_year_paid_orders.size();
+
+            // 全部退订列表
+            List<CourseOrder> all_year_unsubscribe_orders = courseOrderDao.findAllByInstitutionIDAndStatus(institutionID, "unsubscribe");
+            // 本年退订数
+            int this_year_unsubscribe_amount = 0;
+            Calendar cal_now = Calendar.getInstance(); // 获取当前时间
+            int this_year = cal_now.get(Calendar.YEAR); //获取本年年份
+            for (int j = 0; j < all_year_unsubscribe_orders.size(); j++) {
+                java.sql.Date date = all_year_unsubscribe_orders.get(j).getUnsubscribe_time();
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                if (cal.get(Calendar.YEAR) == this_year) {
+                    this_year_unsubscribe_amount++;
+                }
+            }
+
+            InstitutionStatistics statistics = new InstitutionStatistics(institutionName, total_earning,
+                    this_year_earning, total_course_amount, this_year_paid_amount, this_year_unsubscribe_amount);
+            staticsList.add(statistics);
+        }
+
+        if (staticsList.size() == 0) {
+            return new ResultBundle<>(false, "暂无已注册机构！", null);
+        }
+        return new ResultBundle<>(true, "已获取已注册机构数据统计信息！", staticsList);
     }
 
 }

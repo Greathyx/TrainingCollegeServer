@@ -74,4 +74,11 @@ public interface SupervisorService {
      */
     ResultBundle getStatisticsForPieChart();
 
+    /**
+     * 获取所有机构统计数据
+     *
+     * @return ResultBundle
+     */
+    ResultBundle getInstitutionStatistics();
+
 }

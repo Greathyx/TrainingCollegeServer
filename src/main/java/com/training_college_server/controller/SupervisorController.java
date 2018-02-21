@@ -157,4 +157,15 @@ public class SupervisorController {
         return supervisorService.getStatisticsForPieChart();
     }
 
+    /**
+     * 获取所有机构统计数据
+     *
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getInstitutionStatistics", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBundle getInstitutionStatistics() {
+        return supervisorService.getInstitutionStatistics();
+    }
+
 }

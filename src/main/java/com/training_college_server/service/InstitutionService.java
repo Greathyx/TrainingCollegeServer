@@ -3,6 +3,8 @@ package com.training_college_server.service;
 import com.training_college_server.entity.*;
 import com.training_college_server.utils.ResultBundle;
 
+import java.util.ArrayList;
+
 public interface InstitutionService {
 
     /**
@@ -113,6 +115,15 @@ public interface InstitutionService {
      * @return ResultBundle
      */
     ResultBundle getAllTraineesScores(int institutionID);
+
+    /**
+     * 获取本年订单数据
+     *
+     * @param institutionID 机构ID
+     * @param institutionID 订单状态
+     * @return 本年订单数据
+     */
+    ArrayList<CourseOrder> getThisYearStatics(int institutionID, String status);
 
     /**
      * 获取机构本年每月课程收入及订课人数数据
