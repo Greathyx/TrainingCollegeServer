@@ -147,6 +147,15 @@ public class SupervisorServiceImpl implements SupervisorService {
     }
 
     @Override
+    public ResultBundle getAllInstitutionsInfo() {
+        List<Institution> institutionList = institutionDao.findAll();
+        if (institutionList == null || institutionList.size() == 0) {
+            return new ResultBundle<>(false, "暂无已注册机构！", null);
+        }
+        return new ResultBundle<>(true, "已获取已注册机构信息！", institutionList);
+    }
+
+    @Override
     public ResultBundle getToSettleList() {
         List<Institution> institutionList = institutionDao.findAll();
         if (institutionList == null || institutionList.size() == 0) {

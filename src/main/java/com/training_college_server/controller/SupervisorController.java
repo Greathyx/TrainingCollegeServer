@@ -34,9 +34,9 @@ public class SupervisorController {
     public ResultBundle login(Integer supervisor_id, String password) {
         Supervisor supervisor = new Supervisor(supervisor_id, password);
         if (supervisorService.supervisorLogin(supervisor)) {
-            return new ResultBundle<Supervisor>(true, "登陆成功！", supervisor);
+            return new ResultBundle<>(true, "登陆成功！", supervisor);
         } else {
-            return new ResultBundle<Supervisor>(false, "用户名或密码错误！", null);
+            return new ResultBundle<>(false, "用户名或密码错误！", null);
         }
     }
 
@@ -99,6 +99,17 @@ public class SupervisorController {
     @ResponseBody
     public void sendSupervisorReply(String to, String title, String content) {
         mailService.sendSupervisorReply(to, title, content);
+    }
+
+    /**
+     * 获取所有已注册机构信息
+     *
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getAllInstitutionsInfo", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBundle getAllInstitutionsInfo() {
+        return supervisorService.getAllInstitutionsInfo();
     }
 
     /**

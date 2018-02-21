@@ -39,6 +39,13 @@ public interface SupervisorService {
     ResultBundle rejectApply(int institution_apply_id);
 
     /**
+     * 获取所有已注册机构信息
+     *
+     * @return ResultBundle
+     */
+    ResultBundle getAllInstitutionsInfo();
+
+    /**
      * 获取所有要结算钱款的机构列表
      *
      * @return ResultBundle
