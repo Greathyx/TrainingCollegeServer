@@ -12,6 +12,8 @@ import com.training_college_server.utils.VerificationCode;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 
@@ -212,6 +214,116 @@ public class SupervisorServiceImpl implements SupervisorService {
         courseOrderDao.save(orderList);
 
         return new ResultBundle<>(true, "已将金额结算给该机构！", null);
+    }
+
+    /**
+     * 获取本年订单数据
+     *
+     * @param list_all_year 所有年份订单数据
+     * @return 本年订单数据
+     */
+    private ArrayList<CourseOrder> getThisYearStatics(List<CourseOrder> list_all_year) {
+        ArrayList<CourseOrder> list_this_year = new ArrayList<>();
+
+        Calendar cal_now = Calendar.getInstance(); // 获取当前时间
+        int this_year = cal_now.get(Calendar.YEAR); //获取本年年份
+
+        for (int i = 0; i < list_all_year.size(); i++) {
+            Date date = new Date(list_all_year.get(i).getBook_time().getTime());
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            if (cal.get(Calendar.YEAR) == this_year) {
+                list_this_year.add(list_all_year.get(i));
+            }
+        }
+        return list_this_year;
+    }
+
+    @Override
+    public ResultBundle getStatisticsForBarChart() {
+        ArrayList<String[]> staticsList = new ArrayList<>();
+
+        List<CourseOrder> all_year_unsubscribe_list = courseOrderDao.findAllByStatus("unsubscribe");
+        List<CourseOrder> all_year_paid_list = courseOrderDao.findAllByStatus("paid");
+
+        ArrayList<CourseOrder> this_year_unsubscribe_list = this.getThisYearStatics(all_year_unsubscribe_list);
+        ArrayList<CourseOrder> this_year_paid_list = this.getThisYearStatics(all_year_paid_list);
+
+        // 1～12表示1月～12月
+        for (int i = 1; i <= 12; i++) {
+            String[] statics_unit = new String[2];
+            double earning_sum = 0;
+
+            for (int j = 0; j < this_year_unsubscribe_list.size(); j++) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(this_year_unsubscribe_list.get(j).getBook_time());
+                int month = cal.get(Calendar.MONTH) + 1;  // 获取月份
+                if (month == i) {
+                    // 退课差价全部结算给若水教育
+                    BigDecimal bigDecimal = new BigDecimal(
+                            this_year_unsubscribe_list.get(j).getPayment() - this_year_unsubscribe_list.get(j).getPayback()
+                    );
+                    double earning = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                    earning_sum += earning;
+                }
+            }
+
+            for (int j = 0; j < this_year_paid_list.size(); j++) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(this_year_paid_list.get(j).getBook_time());
+                int month = cal.get(Calendar.MONTH) + 1;  // 获取月份
+                if (month == i) {
+                    // 20%结算给若水教育
+                    BigDecimal bigDecimal = new BigDecimal(this_year_paid_list.get(j).getPayment() * 0.2);
+                    double earning = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                    earning_sum += earning;
+                }
+            }
+            statics_unit[0] = String.valueOf(i) + "月";
+            statics_unit[1] = String.valueOf(earning_sum);
+            staticsList.add(statics_unit);
+        }
+        return new ResultBundle<ArrayList>(true, "已获取本年每月收入统计柱状图数据！", staticsList);
+    }
+
+    @Override
+    public ResultBundle getStatisticsForPieChart() {
+        ArrayList<String[]> staticsList = new ArrayList<>();
+
+        // 获取本年订课分成的收入金额
+        List<CourseOrder> all_year_paid_list = courseOrderDao.findAllByStatus("paid");
+        ArrayList<CourseOrder> this_year_paid_list = this.getThisYearStatics(all_year_paid_list);
+
+        String[] statics_unit_paid = new String[2];
+        statics_unit_paid[0] = "订课分成";
+        double paid_earning = 0;
+        for (int i = 0; i < this_year_paid_list.size(); i++) {
+            // 20%结算给若水教育
+            BigDecimal bigDecimal = new BigDecimal(this_year_paid_list.get(i).getPayment() * 0.2);
+            double earning = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+            paid_earning += earning;
+        }
+        statics_unit_paid[1] = String.valueOf(paid_earning);
+        staticsList.add(statics_unit_paid);
+
+        // 获取本年退课差额的收入金额
+        List<CourseOrder> all_year_unsubscribe_list = courseOrderDao.findAllByStatus("unsubscribe");
+        ArrayList<CourseOrder> this_year_unsubscribe_list = this.getThisYearStatics(all_year_unsubscribe_list);
+
+        String[] statics_unit_unsubscribe = new String[2];
+        statics_unit_unsubscribe[0] = "退课差额";
+        double unsubscribe_earning = 0;
+        for (int i = 0; i < this_year_unsubscribe_list.size(); i++) {
+            BigDecimal bigDecimal = new BigDecimal(
+                    this_year_unsubscribe_list.get(i).getPayment() - this_year_unsubscribe_list.get(i).getPayback()
+            );
+            double earning = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+            unsubscribe_earning += earning;
+        }
+        statics_unit_unsubscribe[1] = String.valueOf(unsubscribe_earning);
+        staticsList.add(statics_unit_unsubscribe);
+
+        return new ResultBundle<ArrayList>(true, "已获取本年收入来源占比饼图的数据！", staticsList);
     }
 
 }

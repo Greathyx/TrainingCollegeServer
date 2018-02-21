@@ -124,4 +124,26 @@ public class SupervisorController {
         return supervisorService.settlePayment(institutionID, course_earning);
     }
 
+    /**
+     * 获取若水教育每月收入数据
+     *
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getStatisticsForBarChart", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBundle getStatisticsForBarChart() {
+        return supervisorService.getStatisticsForBarChart();
+    }
+
+    /**
+     * 获取本年收入来源占比饼图数据
+     *
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getStatisticsForPieChart", method = RequestMethod.GET)
+    @ResponseBody
+    public ResultBundle getStatisticsForPieChart() {
+        return supervisorService.getStatisticsForPieChart();
+    }
+
 }

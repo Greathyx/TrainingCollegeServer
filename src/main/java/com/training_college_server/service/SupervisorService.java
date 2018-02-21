@@ -53,4 +53,18 @@ public interface SupervisorService {
      */
     ResultBundle settlePayment(int institutionID, double course_earning);
 
+    /**
+     * 获取若水教育每月收入数据
+     *
+     * @return ResultBundle
+     */
+    ResultBundle getStatisticsForBarChart();
+
+    /**
+     * 获取本年收入来源占比饼图数据
+     *
+     * @return ResultBundle
+     */
+    ResultBundle getStatisticsForPieChart();
+
 }

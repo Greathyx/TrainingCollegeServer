@@ -18,4 +18,6 @@ public interface CourseOrderDao extends JpaRepository<CourseOrder, Integer> {
 
     List<CourseOrder> findAllByInstitutionIDAndStatusAndSettled(int institutionID, String status, boolean settled);
 
+    List<CourseOrder> findAllByStatus(String status);
+
 }
