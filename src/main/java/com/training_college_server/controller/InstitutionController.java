@@ -1,7 +1,5 @@
 package com.training_college_server.controller;
 
-import com.training_college_server.dao.CourseDao;
-import com.training_college_server.dao.CourseOrderDao;
 import com.training_college_server.entity.*;
 import com.training_college_server.service.InstitutionService;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,11 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.training_college_server.utils.ResultBundle;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @RestController
@@ -24,12 +19,6 @@ public class InstitutionController {
 
     @Resource
     private InstitutionService institutionService;
-
-    @Resource
-    private CourseDao courseDao;
-
-    @Resource
-    private CourseOrderDao courseOrderDao;
 
     /**
      * 机构注册申请
