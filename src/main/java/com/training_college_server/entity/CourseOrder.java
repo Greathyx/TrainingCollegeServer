@@ -24,7 +24,7 @@ public class CourseOrder implements Serializable {
     private int add_credits;
     private double payback = 0;
     private int minus_credits = 0;
-    private Date book_time;
+    private Date bookTime;
     private Date unsubscribe_time;
     private boolean score = false; // 是否登记了成绩的标志
     private boolean settled = false; // 是否将费用结算给机构的标志
@@ -54,7 +54,7 @@ public class CourseOrder implements Serializable {
         this.course_name = courseName;
         this.institution_name = institutionName;
         this.add_credits = add_credits;
-        this.book_time = book_time;
+        this.bookTime = book_time;
     }
 
     @Id
@@ -195,12 +195,12 @@ public class CourseOrder implements Serializable {
     }
 
     @Column(name = "book_time")
-    public Date getBook_time() {
-        return book_time;
+    public Date getBookTime() {
+        return bookTime;
     }
 
-    public void setBook_time(Date book_time) {
-        this.book_time = book_time;
+    public void setBookTime(Date bookTime) {
+        this.bookTime = bookTime;
     }
 
     @Column(name = "unsubscribe_time")

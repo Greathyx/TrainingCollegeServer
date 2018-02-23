@@ -62,14 +62,15 @@ public class UpdateOrderStatusService {
             // 当触发定时器时，该订单状态已为unsubscribe，则说明用户在15min内取消了订单
             if (!(courseOrder.getStatus().equals("unsubscribe"))
                     && !courseOrder.getStatus().equals("paid")
-                    && !courseOrder.getStatus().equals("invalid")) {
+                    && !courseOrder.getStatus().equals("invalid")
+                    && !courseOrder.getStatus().equals("failure")) {
                 // 设置订单状态为invalid
                 courseOrder.setStatus("invalid");
                 CourseOrder courseOrder1 = courseOrderDao.save(courseOrder);
 
-                // 该课程已订购人数减一
+                // 该课程已订购人数减去相应订课人数
                 Course course = courseDao.findOne(courseOrder1.getCourseID());
-                course.setBooked_amount(course.getBooked_amount() - 1);
+                course.setBooked_amount(course.getBooked_amount() - courseOrder.getAmount());
                 courseDao.save(course);
             }
             // 关闭定时器

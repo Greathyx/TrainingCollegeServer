@@ -16,4 +16,6 @@ public interface CourseDao extends JpaRepository<Course, Integer> {
 
     int countAllByPublisher(int publisher);
 
+    List<Course> findAllByPublisherAndHasClassesOrderByDueAsc(int publisher, boolean has_classes);
+
 }

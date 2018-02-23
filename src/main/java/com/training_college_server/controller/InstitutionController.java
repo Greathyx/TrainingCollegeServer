@@ -1,5 +1,6 @@
 package com.training_college_server.controller;
 
+import com.training_college_server.dao.CourseDao;
 import com.training_college_server.dao.CourseOrderDao;
 import com.training_college_server.entity.*;
 import com.training_college_server.service.InstitutionService;
@@ -10,8 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.training_college_server.utils.ResultBundle;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -21,6 +24,12 @@ public class InstitutionController {
 
     @Resource
     private InstitutionService institutionService;
+
+    @Resource
+    private CourseDao courseDao;
+
+    @Resource
+    private CourseOrderDao courseOrderDao;
 
     /**
      * 机构注册申请
@@ -258,6 +267,31 @@ public class InstitutionController {
     @ResponseBody
     public ResultBundle getStatisticsForPieChart(int institutionID) {
         return institutionService.getStatisticsForPieChart(institutionID);
+    }
+
+    /**
+     * 获取机构待分班课程列表
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/getToDivideClassList", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle getToDivideClassList(int institutionID) {
+        return institutionService.getToDivideClassList(institutionID);
+    }
+
+    /**
+     * 分配班级方法
+     *
+     * @param courseID     课程ID
+     * @param class_amount 班级数目
+     * @return ResultBundle
+     */
+    @RequestMapping(path = "/divideClasses", method = RequestMethod.POST)
+    @ResponseBody
+    public ResultBundle divideClasses(int courseID, int class_amount) {
+        return institutionService.divideClasses(courseID, class_amount);
     }
 
 }

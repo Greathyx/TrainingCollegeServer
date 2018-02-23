@@ -1,10 +1,12 @@
 package com.training_college_server.service.impl;
 
+import com.training_college_server.bean.ToDivideClassInfo;
 import com.training_college_server.bean.TraineeInfoForInstitution;
 import com.training_college_server.dao.*;
 import com.training_college_server.entity.*;
 import com.training_college_server.service.InstitutionService;
 import com.training_college_server.utils.CourseType;
+import com.training_college_server.utils.SupervisorHelper;
 import com.training_college_server.utils.TraineeStrategy;
 import org.springframework.stereotype.Component;
 import com.training_college_server.utils.ResultBundle;
@@ -40,6 +42,9 @@ public class InstitutionServiceImpl implements InstitutionService {
 
     @Resource
     private ScoresRegistrationDao scoresRegistrationDao;
+
+    @Resource
+    private BankAccountDao bankAccountDao;
 
     @Override
     public ResultBundle institutionApply(Institution institution, InstitutionApply institutionApply) {
@@ -174,7 +179,7 @@ public class InstitutionServiceImpl implements InstitutionService {
         for (int i = 0; i < orderList.size(); i++) {
             boolean canAdd = true; // 是否是同一个学员订过两次或以上课程
             for (int j = 0; j < traineeArr.size(); j++) {
-                if (orderList.get(i).getTraineeID() == traineeArr.get(j).getTraineeID()){
+                if (orderList.get(i).getTraineeID() == traineeArr.get(j).getTraineeID()) {
                     canAdd = false;
                     break;
                 }
@@ -250,15 +255,14 @@ public class InstitutionServiceImpl implements InstitutionService {
 
         if (status.equals("paid")) {
             for (int i = 0; i < orderList_all_year.size(); i++) {
-                Date date = orderList_all_year.get(i).getBook_time();
+                Date date = orderList_all_year.get(i).getBookTime();
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(date);
                 if (cal.get(Calendar.YEAR) == this_year) {
                     list_this_year.add(orderList_all_year.get(i));
                 }
             }
-        }
-        else if(status.equals("unsubscribe")) {
+        } else if (status.equals("unsubscribe")) {
             for (int i = 0; i < orderList_all_year.size(); i++) {
                 Date date = orderList_all_year.get(i).getUnsubscribe_time();
                 Calendar cal = Calendar.getInstance();
@@ -287,7 +291,7 @@ public class InstitutionServiceImpl implements InstitutionService {
 
             for (int j = 0; j < orderList.size(); j++) {
                 Calendar cal = Calendar.getInstance();
-                cal.setTime(orderList.get(j).getBook_time());
+                cal.setTime(orderList.get(j).getBookTime());
                 int month = cal.get(Calendar.MONTH) + 1;  // 获取月份
                 if (month == i) {
                     // 80%结算给机构
@@ -299,8 +303,12 @@ public class InstitutionServiceImpl implements InstitutionService {
                 }
             }
 
+            // 将最终结果也四舍五入
+            BigDecimal bigDecimal = new BigDecimal(earning_sum);
+            double earning_sum2 = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
             statics_unit[0] = String.valueOf(i) + "月";
-            statics_unit[1] = String.valueOf(earning_sum);
+            statics_unit[1] = String.valueOf(earning_sum2);
             statics_unit[2] = String.valueOf(booked_amount);
             staticsList.add(statics_unit);
         }
@@ -338,6 +346,158 @@ public class InstitutionServiceImpl implements InstitutionService {
             }
         }
         return new ResultBundle<ArrayList>(true, "已获取本年各类型课程收入占比饼图的数据！", staticsList);
+    }
+
+    @Override
+    public ResultBundle getToDivideClassList(int institutionID) {
+        List<Course> courseList = courseDao.findAllByPublisherAndHasClassesOrderByDueAsc(institutionID, true);
+        if (courseList == null || courseList.size() == 0) {
+            return new ResultBundle<>(false, "暂无待分班班级！", null);
+        }
+
+        ArrayList<ToDivideClassInfo> classInfos = new ArrayList<>();
+        for (int i = 0; i < courseList.size(); i++) {
+
+            Calendar due = Calendar.getInstance(); // 获取截止日期
+            due.setTime(courseList.get(i).getDue());
+            Calendar now = Calendar.getInstance(); // 获取当前时间
+            now.setTime(new java.util.Date());
+            boolean canDivide = now.after(due);
+
+            ToDivideClassInfo info_unit = new ToDivideClassInfo(
+                    courseList.get(i).getCourse_id(),
+                    courseList.get(i).getName(),
+                    courseList.get(i).getTrainee_amount(),
+                    courseList.get(i).getBooked_amount(),
+                    courseList.get(i).getDue(),
+                    courseList.get(i).getStart_date(),
+                    courseList.get(i).getClass_amount(),
+                    canDivide
+            );
+            classInfos.add(info_unit);
+        }
+        return new ResultBundle<ArrayList>(true, "已获取待分班班级！", classInfos);
+    }
+
+    @Override
+    public ResultBundle divideClasses(int courseID, int class_amount) {
+        // 更新班级数目
+        Course course = courseDao.findOne(courseID);
+        course.setClass_amount(class_amount);
+        Course course_new = courseDao.save(course);
+
+        // 所有待配班的人数
+        int total_amount = course_new.getBooked_amount();
+
+        // 每班人数列表
+        ArrayList<Integer> class_amount_array = new ArrayList<>();
+        for (int i = 0; i < class_amount - 1; i++) {
+            // 每班人数
+            BigDecimal bigDecimal = new BigDecimal(total_amount / class_amount);
+            int amount_per_class = (int) bigDecimal.setScale(0, BigDecimal.ROUND_HALF_UP).doubleValue();
+            class_amount_array.add(amount_per_class);
+        }
+        // 最后一个班的人数
+        class_amount_array.add(total_amount - (class_amount - 1) * class_amount_array.get(0));
+
+        // 根据课程预定日期的先后来分配班级，先预定的先分配
+        List<CourseOrder> orderList = courseOrderDao.findAllByCourseIDAndStatusOrderByBookTime(courseID, "paid");
+
+        // 考虑重新分配班级的情况，故将所有该课程的班号清0
+        for (int i = 0; i < orderList.size(); i++) {
+            CourseOrder courseOrder = orderList.get(i);
+            courseOrder.setClassID(0);
+            courseOrderDao.save(courseOrder);
+        }
+
+        int classID = 1; // 当前班级编号
+        int present_class_amount = 0; // 当前班级已分配的人数
+
+        // 外层循环class_amount次，一次循环分配一个班级
+        for (int i = 0; i < class_amount; i++) {
+            // 内存循环，遍历当前课程的所有订单，将能分配进入当前班级的订单人数分配进当前班级
+            for (int j = 0; j < orderList.size(); j++) {
+                CourseOrder courseOrder = orderList.get(j); // 当前处理的订单
+                int amount_per_order = courseOrder.getAmount(); // 当前订单的订课人数
+                present_class_amount += amount_per_order;
+                if (present_class_amount <= class_amount_array.get(i) && courseOrder.getClassID() == 0) {
+                    courseOrder.setClassID(classID);
+                    courseOrderDao.save(courseOrder);
+                    total_amount -= amount_per_order;
+                    if (total_amount == 0) { // 如果所有订课人数已经分配完全，则跳出循环
+                        break;
+                    }
+                } else {
+                    present_class_amount -= amount_per_order;
+                }
+            }
+            if (total_amount == 0) { // 如果所有订课人数已经分配完全，则跳出循环
+                break;
+            }
+            classID++; // 分配下一个班级
+            present_class_amount = 0; // 下一个班级人数清0
+        }
+
+        // 若配班不成功，则全额退款
+        for (int i = 0; i < orderList.size(); i++) {
+            CourseOrder courseOrder = orderList.get(i); // 当前处理的订单
+            if (courseOrder.getClassID() == 0) {
+                Trainee trainee = traineeDao.findOne(courseOrder.getTraineeID());
+                int add_credits = courseOrder.getAdd_credits();
+
+                // 扣除当时所有获得的会员积分
+                trainee.setCredit(trainee.getCredit() - add_credits);
+                traineeDao.save(trainee); // 写入数据库
+
+                // 全额退款，增加学员的账户🈷️余额
+                double payment = courseOrder.getPayment();
+                BankAccount trainee_account = bankAccountDao.findByHolderAndType(courseOrder.getTraineeID(), "trainee");
+                trainee_account.setBalance(trainee_account.getBalance() + payment);
+                bankAccountDao.save(trainee_account);
+
+                // 订单状态改为failure，表示配班失败
+                courseOrder.setStatus("failure");
+                // 存入扣除的积分
+                courseOrder.setMinus_credits(add_credits);
+                // 存入退款金额
+                courseOrder.setPayback(payment);
+                // 写入退课日期
+                java.util.Date date = new java.util.Date();
+                Date unsubscribe_date = new Date(date.getTime());
+                courseOrder.setUnsubscribe_time(unsubscribe_date);
+                courseOrderDao.save(courseOrder);
+
+                // 获取若水教育银行账户
+                int supervisor_id = SupervisorHelper.getSupervisorID();
+                BankAccount supervisor_account = bankAccountDao.findByHolderAndType(supervisor_id, "supervisor");
+
+                boolean isSettled = courseOrder.isSettled();
+                // 若若水已经将钱结算给相应机构
+                if (isSettled) {
+                    // 计算结算给机构的钱款
+                    BigDecimal bigDecimal = new BigDecimal(0.8 * payment);
+                    double institution_earning = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                    // 获取机构银行账户
+                    int institutionID = courseOrder.getInstitutionID();
+                    BankAccount institution_account = bankAccountDao.findByHolderAndType(institutionID, "institution");
+                    institution_account.setBalance(institution_account.getBalance() - institution_earning);
+                    bankAccountDao.save(institution_account);
+
+                    // 计算结算给若水的钱款
+                    double ruoshui_earning = payment - institution_earning;
+                    // 减少若水账户的余额
+                    supervisor_account.setBalance(supervisor_account.getBalance() - ruoshui_earning);
+                    bankAccountDao.save(supervisor_account);
+                }
+                // 若若水没有将钱结算给相应机构
+                else {
+                    // 减少若水账户的余额
+                    supervisor_account.setBalance(supervisor_account.getBalance() - payment);
+                    bankAccountDao.save(supervisor_account);
+                }
+            }
+        }
+        return new ResultBundle<>(true, "已成功分配班级！", null);
     }
 
 }

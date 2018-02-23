@@ -154,15 +154,40 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public ResultBundle getAllCourses() {
-//        List<Course> courseList = courseDao.findAll(new Sort(Sort.Direction.DESC, "publisher"));
         List<Course> courseList = courseDao.findAllByHasClasses(false);
-        return new ResultBundle<List>(true, "已成功获取数据！", courseList);
+        ArrayList<Course> courseArr_valid = new ArrayList<>();
+
+        Calendar today = Calendar.getInstance(); // 获取当前时间
+        today.setTime(new java.util.Date());
+        Calendar book_due_date = Calendar.getInstance();
+
+        for (int i = 0; i < courseList.size(); i++) {
+            Course course = courseList.get(i);
+            book_due_date.setTime(course.getDue()); // 获取报名截止日期
+            if (course.getBooked_amount() < course.getTrainee_amount() && today.before(book_due_date)){
+                courseArr_valid.add(course);
+            }
+        }
+        return new ResultBundle<ArrayList>(true, "已成功获取课程数据！", courseArr_valid);
     }
 
     @Override
     public ResultBundle getAllCoursesWithClasses() {
         List<Course> courseList = courseDao.findAllByHasClasses(true);
-        return new ResultBundle<List>(true, "已成功获取数据！", courseList);
+        ArrayList<Course> courseArr_valid = new ArrayList<>();
+
+        Calendar today = Calendar.getInstance(); // 获取当前时间
+        today.setTime(new java.util.Date());
+        Calendar book_due_date = Calendar.getInstance();
+
+        for (int i = 0; i < courseList.size(); i++) {
+            Course course = courseList.get(i);
+            book_due_date.setTime(course.getDue()); // 获取报名截止日期
+            if (course.getBooked_amount() < course.getTrainee_amount() && book_due_date.after(today)){
+                courseArr_valid.add(course);
+            }
+        }
+        return new ResultBundle<ArrayList>(true, "已成功获取课程数据！", courseArr_valid);
     }
 
     @Override
@@ -198,10 +223,10 @@ public class TraineeServiceImpl implements TraineeService {
             // 在数据库中生成订单
             CourseOrder courseOrder2 = courseOrderDao.save(courseOrder1);
 
-            // 该课程已订购人数+1
-            // 锁定席位！若15min后用户未支付，则订购人数-1
-            // 若用户在15mi内自己取消了订单，则订购人数也会-1
-            course.setBooked_amount(course.getBooked_amount() + 1);
+            // 该课程已订购人数增加相应订课人数
+            // 锁定席位！若15min后用户未支付，则订购人数减去相应订课人数
+            // 若用户在15mi内自己取消了订单，则订购人数也会减去相应订课人数
+            course.setBooked_amount(course.getBooked_amount() + courseOrder.getAmount());
             courseDao.save(course);
 
             // 开启改变状态的定时器
@@ -280,9 +305,9 @@ public class TraineeServiceImpl implements TraineeService {
         }
         // 取消订单
         else {
-            // 该课程已订购人数减一
+            // 该课程已订购人数减去相应订课人数
             Course course = courseDao.findOne(courseOrder.getCourseID());
-            course.setBooked_amount(course.getBooked_amount() - 1);
+            course.setBooked_amount(course.getBooked_amount() - courseOrder.getAmount());
             courseDao.save(course);
 
             // 设置订单状态为invalid
@@ -340,7 +365,7 @@ public class TraineeServiceImpl implements TraineeService {
                 // 获取银行账户
                 BankAccount bankAccount = bankAccountDao.findByHolderAndType(courseOrder1.getTraineeID(), "trainee");
 
-                // 获取若水教育银行账户余额
+                // 获取若水教育银行账户
                 int supervisor_id = SupervisorHelper.getSupervisorID();
                 BankAccount supervisor_account = bankAccountDao.findByHolderAndType(supervisor_id, "supervisor");
 
@@ -483,7 +508,7 @@ public class TraineeServiceImpl implements TraineeService {
 
         for (int i = 0; i < orderList_all_year.size(); i++) {
             Calendar cal = Calendar.getInstance();
-            cal.setTime(orderList_all_year.get(i).getBook_time());
+            cal.setTime(orderList_all_year.get(i).getBookTime());
             if (cal.get(Calendar.YEAR) == this_year) {
                 list_this_year.add(orderList_all_year.get(i));
             }
@@ -505,15 +530,19 @@ public class TraineeServiceImpl implements TraineeService {
 
             for (int j = 0; j < orderList.size(); j++) {
                 Calendar cal = Calendar.getInstance();
-                cal.setTime(orderList.get(j).getBook_time());
+                cal.setTime(orderList.get(j).getBookTime());
                 int month = cal.get(Calendar.MONTH) + 1;  // 获取月份
                 if (month == i) {
                     payment_sum += orderList.get(j).getPayment();
                 }
             }
 
+            // 将最终结果也四舍五入
+            BigDecimal bigDecimal = new BigDecimal(payment_sum);
+            double payment_sum2 = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
             statics_unit[0] = String.valueOf(i) + "月";
-            statics_unit[1] = String.valueOf(payment_sum);
+            statics_unit[1] = String.valueOf(payment_sum2);
             staticsList.add(statics_unit);
         }
         return new ResultBundle<ArrayList>(true, "已获取本年每月消费统计柱状图数据！", staticsList);

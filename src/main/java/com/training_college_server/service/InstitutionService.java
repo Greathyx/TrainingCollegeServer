@@ -141,4 +141,21 @@ public interface InstitutionService {
      */
     ResultBundle getStatisticsForPieChart(int institutionID);
 
+    /**
+     * 获取机构待分班课程列表
+     *
+     * @param institutionID 机构ID
+     * @return ResultBundle
+     */
+    ResultBundle getToDivideClassList(int institutionID);
+
+    /**
+     * 分配班级方法
+     *
+     * @param courseID     课程ID
+     * @param class_amount 班级数目
+     * @return ResultBundle
+     */
+    ResultBundle divideClasses(int courseID, int class_amount);
+
 }

@@ -251,7 +251,7 @@ public class SupervisorServiceImpl implements SupervisorService {
         int this_year = cal_now.get(Calendar.YEAR); //获取本年年份
 
         for (int i = 0; i < list_all_year.size(); i++) {
-            Date date = new Date(list_all_year.get(i).getBook_time().getTime());
+            Date date = new Date(list_all_year.get(i).getBookTime().getTime());
             Calendar cal = Calendar.getInstance();
             cal.setTime(date);
             if (cal.get(Calendar.YEAR) == this_year) {
@@ -278,7 +278,7 @@ public class SupervisorServiceImpl implements SupervisorService {
 
             for (int j = 0; j < this_year_unsubscribe_list.size(); j++) {
                 Calendar cal = Calendar.getInstance();
-                cal.setTime(this_year_unsubscribe_list.get(j).getBook_time());
+                cal.setTime(this_year_unsubscribe_list.get(j).getBookTime());
                 int month = cal.get(Calendar.MONTH) + 1;  // 获取月份
                 if (month == i) {
                     // 退课差价全部结算给若水教育
@@ -292,7 +292,7 @@ public class SupervisorServiceImpl implements SupervisorService {
 
             for (int j = 0; j < this_year_paid_list.size(); j++) {
                 Calendar cal = Calendar.getInstance();
-                cal.setTime(this_year_paid_list.get(j).getBook_time());
+                cal.setTime(this_year_paid_list.get(j).getBookTime());
                 int month = cal.get(Calendar.MONTH) + 1;  // 获取月份
                 if (month == i) {
                     // 20%结算给若水教育
@@ -301,8 +301,13 @@ public class SupervisorServiceImpl implements SupervisorService {
                     earning_sum += earning;
                 }
             }
+
+            // 将最终结果也四舍五入
+            BigDecimal bigDecimal = new BigDecimal(earning_sum);
+            double earning_sum2 = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
             statics_unit[0] = String.valueOf(i) + "月";
-            statics_unit[1] = String.valueOf(earning_sum);
+            statics_unit[1] = String.valueOf(earning_sum2);
             staticsList.add(statics_unit);
         }
         return new ResultBundle<ArrayList>(true, "已获取本年每月收入统计柱状图数据！", staticsList);

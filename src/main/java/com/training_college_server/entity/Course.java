@@ -23,7 +23,7 @@ public class Course implements Serializable {
     private String introduction;
     private int class_amount = 1;
     private boolean hasClasses;
-    private Date book_due_date;
+    private Date due;
     private int booked_amount;
 
     public Course() {
@@ -46,7 +46,7 @@ public class Course implements Serializable {
         this.start_date = start_date;
         this.introduction = introduction;
         this.hasClasses = hasClasses;
-        this.book_due_date = book_due_date;
+        this.due = book_due_date;
     }
 
     @Id
@@ -177,13 +177,13 @@ public class Course implements Serializable {
         this.hasClasses = hasClasses;
     }
 
-    @Column(name = "book_due_date")
-    public Date getBook_due_date() {
-        return book_due_date;
+    @Column(name = "due")
+    public Date getDue() {
+        return due;
     }
 
-    public void setBook_due_date(Date book_due_date) {
-        this.book_due_date = book_due_date;
+    public void setDue(Date due) {
+        this.due = due;
     }
 
     @Column(name = "booked_amount")
