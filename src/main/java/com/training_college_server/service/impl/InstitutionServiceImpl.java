@@ -169,19 +169,29 @@ public class InstitutionServiceImpl implements InstitutionService {
         if (orderList == null || orderList.size() == 0) {
             return new ResultBundle<>(false, "暂无该学员的优惠信息！", null);
         }
+
         ArrayList<TraineeInfoForInstitution> traineeArr = new ArrayList<>();
         for (int i = 0; i < orderList.size(); i++) {
-            Trainee trainee = traineeDao.findOne(orderList.get(i).getTraineeID());
-            int level = TraineeStrategy.getLevel(trainee.getExpenditure());
-            double discount = TraineeStrategy.getDiscount(level);
-            TraineeInfoForInstitution traineeInfo = new TraineeInfoForInstitution(
-                    trainee.getTrainee_id(),
-                    trainee.getName(),
-                    trainee.getEmail(),
-                    level,
-                    discount
-            );
-            traineeArr.add(traineeInfo);
+            boolean canAdd = true; // 是否是同一个学员订过两次或以上课程
+            for (int j = 0; j < traineeArr.size(); j++) {
+                if (orderList.get(i).getTraineeID() == traineeArr.get(j).getTraineeID()){
+                    canAdd = false;
+                    break;
+                }
+            }
+            if (canAdd) {
+                Trainee trainee = traineeDao.findOne(orderList.get(i).getTraineeID());
+                int level = TraineeStrategy.getLevel(trainee.getExpenditure());
+                double discount = TraineeStrategy.getDiscount(level);
+                TraineeInfoForInstitution traineeInfo = new TraineeInfoForInstitution(
+                        trainee.getTrainee_id(),
+                        trainee.getName(),
+                        trainee.getEmail(),
+                        level,
+                        discount
+                );
+                traineeArr.add(traineeInfo);
+            }
         }
         return new ResultBundle<ArrayList>(true, "已获取所有学员优惠信息！", traineeArr);
     }

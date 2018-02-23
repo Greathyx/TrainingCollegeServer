@@ -222,15 +222,11 @@ public class SupervisorServiceImpl implements SupervisorService {
         institution_account.setBalance(institution_account.getBalance() + institution_earning);
         bankAccountDao.save(institution_account);
 
-        // 20%结算给若水教育，并增加若水教育银行账户余额
-        // 四舍五入保留2位小数
-        BigDecimal bigDecimal2 = new BigDecimal(0.2 * course_earning);
-        double supervisor_earning = bigDecimal2.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-
+        // 20%结算给若水教育，扣除若水教育银行账户余额机构所赚的钱款
         BankAccount supervisor_account = bankAccountDao.findByHolderAndType(
                 SupervisorHelper.getSupervisorID(), "supervisor"
         );
-        supervisor_account.setBalance(supervisor_account.getBalance() + supervisor_earning);
+        supervisor_account.setBalance(supervisor_account.getBalance() - institution_earning);
         bankAccountDao.save(supervisor_account);
 
         // 将course_order表中对应项的settled记为true

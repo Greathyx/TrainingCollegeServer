@@ -244,6 +244,13 @@ public class TraineeServiceImpl implements TraineeService {
             bankAccount.setBalance(bankAccount.getBalance() - payment);
             bankAccountDao.save(bankAccount); // 写入数据库
 
+            // 将用户所付钱款打入若水教育账户
+            BankAccount supervisor_account = bankAccountDao.findByHolderAndType(
+                    SupervisorHelper.getSupervisorID(), "supervisor"
+            );
+            supervisor_account.setBalance(supervisor_account.getBalance() + payment);
+            bankAccountDao.save(supervisor_account); // 写入数据库
+
             Trainee trainee = traineeDao.findOne(courseOrder.getTraineeID());
             // 增加会员累计消费
             trainee.setExpenditure(trainee.getExpenditure() + payment);
@@ -350,8 +357,8 @@ public class TraineeServiceImpl implements TraineeService {
                     bankAccount.setBalance(bankAccount.getBalance() + money_back);
                     bankAccountDao.save(bankAccount);
 
-                    // 将退款差价计算入若水银行账户
-                    supervisor_account.setBalance(supervisor_account.getBalance() + payment - money_back);
+                    // 若水银行账户退款
+                    supervisor_account.setBalance(supervisor_account.getBalance() - money_back);
                     bankAccountDao.save(supervisor_account);
 
                     // 减少相应数目的累计消费金额
@@ -375,8 +382,8 @@ public class TraineeServiceImpl implements TraineeService {
                     bankAccount.setBalance(bankAccount.getBalance() + money_back);
                     bankAccountDao.save(bankAccount);
 
-                    // 将退款差价计算入若水银行账户
-                    supervisor_account.setBalance(supervisor_account.getBalance() + payment - money_back);
+                    // 若水银行账户退款
+                    supervisor_account.setBalance(supervisor_account.getBalance() - money_back);
                     bankAccountDao.save(supervisor_account);
 
                     // 减少相应数目的累计消费金额
@@ -398,8 +405,8 @@ public class TraineeServiceImpl implements TraineeService {
                 bankAccount.setBalance(bankAccount.getBalance() + money_back);
                 bankAccountDao.save(bankAccount);
 
-                // 将退款差价计算入若水银行账户
-                supervisor_account.setBalance(supervisor_account.getBalance() + payment - money_back);
+                // 若水银行账户退款
+                supervisor_account.setBalance(supervisor_account.getBalance() - money_back);
                 bankAccountDao.save(supervisor_account);
 
                 // 减少相应数目的累计消费金额
