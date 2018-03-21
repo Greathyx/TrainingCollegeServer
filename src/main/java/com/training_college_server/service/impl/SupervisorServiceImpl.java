@@ -448,19 +448,17 @@ public class SupervisorServiceImpl implements SupervisorService {
             double total_expense = 0;
             List<CourseOrder> all_year_orders = courseOrderDao.findAllByTraineeIDAndStatus(traineeID, "paid");
             for (int j = 0; j < all_year_orders.size(); j++) {
-                BigDecimal bigDecimal = new BigDecimal(all_year_orders.get(j).getPayment());
-                double single_expense = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-                total_expense += single_expense;
+                total_expense += all_year_orders.get(j).getPayment();
             }
+            total_expense = new BigDecimal(total_expense).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 
             // 本年支出
             double this_year_expense = 0;
             ArrayList<CourseOrder> this_year_orders = traineeService.getThisYearStatics(traineeID);
             for (int j = 0; j < this_year_orders.size(); j++) {
-                BigDecimal bigDecimal = new BigDecimal(this_year_orders.get(j).getPayment());
-                double single_expense = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-                this_year_expense += single_expense;
+                this_year_expense += this_year_orders.get(j).getPayment();
             }
+            this_year_expense = new BigDecimal(this_year_expense).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 
             // 总订课程数
             int total_course_amount = all_year_orders.size();

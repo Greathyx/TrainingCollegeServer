@@ -172,7 +172,7 @@ public class InstitutionServiceImpl implements InstitutionService {
     public ResultBundle getAllTraineeInfo(int institutionID, String status) {
         List<CourseOrder> orderList = courseOrderDao.findAllByInstitutionIDAndStatus(institutionID, status);
         if (orderList == null || orderList.size() == 0) {
-            return new ResultBundle<>(false, "暂无该学员的优惠信息！", null);
+            return new ResultBundle<>(false, "暂无学员的优惠信息！", null);
         }
 
         ArrayList<TraineeInfoForInstitution> traineeArr = new ArrayList<>();
