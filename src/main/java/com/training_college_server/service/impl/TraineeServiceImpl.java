@@ -364,6 +364,8 @@ public class TraineeServiceImpl implements TraineeService {
 
                 // 扣除当时所有获得的会员积分
                 trainee.setCredit(trainee.getCredit() - add_credits);
+                // 退回当时所抵扣的积分
+                trainee.setCredit(trainee.getCredit() + courseOrder1.getUse_credit());
                 Trainee trainee1 = traineeDao.save(trainee); // 写入数据库
 
                 double payment = courseOrder1.getPayment();
