@@ -42,7 +42,7 @@ public class UpdateOrderStatusService {
         CourseOrder courseOrder = courseOrderDao.findOne(course_order_id);
         if (courseOrder != null) {
             Calendar cal = Calendar.getInstance(); // 获取当前时间
-            cal.add(Calendar.MINUTE, 15); // 设置延迟15分钟
+            cal.add(Calendar.MINUTE, 3); // 设置延迟15分钟
             int month = cal.get(Calendar.MONTH) + 1; // 获取月份
             int day = cal.get(Calendar.DATE); //获取日
             int hour = cal.get(Calendar.HOUR_OF_DAY); // 小时

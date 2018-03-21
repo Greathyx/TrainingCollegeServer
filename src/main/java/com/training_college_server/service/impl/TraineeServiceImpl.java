@@ -143,7 +143,7 @@ public class TraineeServiceImpl implements TraineeService {
             int level = TraineeStrategy.getLevel(trainee.getExpenditure());
             double discount = TraineeStrategy.getDiscount(level);
             TraineeVipInfo vipInfo = new TraineeVipInfo(
-                    trainee.getExpenditure(),
+                    new BigDecimal(trainee.getExpenditure()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(),
                     level,
                     discount,
                     trainee.getCredit()
@@ -218,7 +218,8 @@ public class TraineeServiceImpl implements TraineeService {
                     course_name,
                     institution_name,
                     add_credits,
-                    book_date
+                    book_date,
+                    courseOrder.getUse_credit()
             );
             // 在数据库中生成订单
             CourseOrder courseOrder2 = courseOrderDao.save(courseOrder1);
@@ -279,6 +280,10 @@ public class TraineeServiceImpl implements TraineeService {
             Trainee trainee = traineeDao.findOne(courseOrder.getTraineeID());
             // 增加会员累计消费
             trainee.setExpenditure(trainee.getExpenditure() + payment);
+
+            // 扣除会员使用积分
+            int use_credit = courseOrder.getUse_credit();
+            trainee.setCredit(trainee.getCredit() - use_credit);
 
             // 增加会员积分
             int add_credits = courseOrder.getAdd_credits();

@@ -148,8 +148,8 @@ public class TraineeController {
      */
     @RequestMapping(path = "/generateOrder", method = RequestMethod.POST)
     @ResponseBody
-    public ResultBundle generateOrder(int traineeID, int courseID, int institutionID, double payment, int amount, String description) {
-        CourseOrder courseOrder = new CourseOrder(traineeID, courseID, institutionID, payment, amount, description);
+    public ResultBundle generateOrder(int traineeID, int courseID, int institutionID, double payment, int amount, String description, int use_credit) {
+        CourseOrder courseOrder = new CourseOrder(traineeID, courseID, institutionID, payment, amount, description, use_credit);
         return traineeService.generateOrder(courseOrder);
     }
 

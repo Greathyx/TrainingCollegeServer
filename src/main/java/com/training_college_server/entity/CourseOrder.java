@@ -28,22 +28,24 @@ public class CourseOrder implements Serializable {
     private Date unsubscribe_time;
     private boolean score = false; // 是否登记了成绩的标志
     private boolean settled = false; // 是否将费用结算给机构的标志
+    private int use_credit;
 
     public CourseOrder() {
 
     }
 
-    public CourseOrder(int traineeID, int courseID, int institutionID, double payment, int amount, String description) {
+    public CourseOrder(int traineeID, int courseID, int institutionID, double payment, int amount, String description, int use_credit) {
         this.traineeID = traineeID;
         this.courseID = courseID;
         this.institutionID = institutionID;
         this.payment = payment;
         this.amount = amount;
         this.description = description;
+        this.use_credit = use_credit;
     }
 
     public CourseOrder(int traineeID, int courseID, int institutionID, double payment, int amount, String description,
-                       String traineeName, String courseName, String institutionName, int add_credits, Date book_time) {
+                       String traineeName, String courseName, String institutionName, int add_credits, Date book_time, int use_credit) {
         this.traineeID = traineeID;
         this.courseID = courseID;
         this.institutionID = institutionID;
@@ -55,6 +57,7 @@ public class CourseOrder implements Serializable {
         this.institution_name = institutionName;
         this.add_credits = add_credits;
         this.bookTime = book_time;
+        this.use_credit = use_credit;
     }
 
     @Id
@@ -230,4 +233,12 @@ public class CourseOrder implements Serializable {
         this.settled = settled;
     }
 
+    @Column(name = "use_credit")
+    public int getUse_credit() {
+        return use_credit;
+    }
+
+    public void setUse_credit(int use_credit) {
+        this.use_credit = use_credit;
+    }
 }
