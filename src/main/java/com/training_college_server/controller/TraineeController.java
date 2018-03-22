@@ -63,7 +63,7 @@ public class TraineeController {
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     @ResponseBody
     public ResultBundle register(String email, String password, String name, String verificationCode) {
-        Trainee trainee = new Trainee(email, password, name);
+        Trainee trainee = new Trainee(email, password, name, true);
         return traineeService.addTrainee(trainee, verificationCode);
     }
 
